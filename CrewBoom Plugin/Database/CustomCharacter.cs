@@ -16,6 +16,8 @@ namespace CrewBoom.Data
         public CharacterStreamData StreamData { get; private set; }
         public SfxCollectionID SfxID { get; private set; }
         public SfxCollection Sfx { get; private set; }
+
+        public GameObject Visual { get; private set; }
         public bool Loaded { get; private set; }
         private string _path;
         private AssetBundle _bundle;
@@ -112,6 +114,7 @@ namespace CrewBoom.Data
                 if (Definition != null)
                     break;
             }
+            CreateVisual();
         }
 
         private void Unload()
@@ -124,7 +127,43 @@ namespace CrewBoom.Data
                 BundleRequest = null;
                 Loaded = false;
                 Definition = null;
+                DestroyVisual();
             }
+        }
+
+        private void DestroyVisual()
+        {
+            if (Visual == null) return;
+            UnityEngine.Object.Destroy(Visual);
+            Visual = null;
+        }
+
+        private void CreateVisual()
+        {
+            if (Visual != null) return;
+            GameObject parent = new GameObject($"{Definition.CharacterName} Visuals");
+            CharacterDefinition characterModel = UnityEngine.Object.Instantiate(Definition);
+
+            //InitCharacterModel
+            characterModel.transform.SetParent(parent.transform, false);
+
+            //InitSkinnedMeshRendererForModel
+            for (int i = 0; i < characterModel.Renderers.Length; i++)
+            {
+                SkinnedMeshRenderer renderer = characterModel.Renderers[i];
+                renderer.sharedMaterials = Definition.Outfits[0].MaterialContainers[i].Materials;
+                renderer.receiveShadows = false;
+                renderer.gameObject.layer = 15;
+                renderer.gameObject.SetActive(Definition.Outfits[0].EnabledRenderers[i]);
+            }
+
+            //InitAnimatorForModel
+            characterModel.GetComponentInChildren<Animator>().applyRootMotion = false;
+
+            //InitCharacterVisuals
+            parent.SetActive(false);
+
+            Visual = parent;
         }
         /*
         public CharacterDefinition Definition { get; private set; }

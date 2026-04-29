@@ -69,11 +69,12 @@ namespace CrewBoom.Patches
 
         private static void SwapOutfitSwappable(OutfitSwappableCharacter swappable)
         {
-            /*
             if (!CharacterDatabase.GetCharacter(swappable.Character, out CustomCharacter character))
             {
                 return;
             }
+
+            character.WaitForLoadSync();
 
             foreach (DynamicBone dynamicBone in swappable.transform.GetComponents<DynamicBone>())
             {
@@ -139,7 +140,7 @@ namespace CrewBoom.Patches
 
             Object.Destroy(customCharacter);
 
-            originalAnimator.Rebind(true); -- TODO*/
+            originalAnimator.Rebind(true);
         }
         private static void SwapCutsceneOnlyCharacter(Transform root, Characters character)
         {

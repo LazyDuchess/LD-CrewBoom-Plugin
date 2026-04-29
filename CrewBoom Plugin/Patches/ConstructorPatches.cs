@@ -1,5 +1,6 @@
 ﻿using BepInEx.Logging;
 using CrewBoom.Data;
+using CrewBoom.Database;
 using HarmonyLib;
 using Reptile;
 using UnityEngine;
@@ -18,8 +19,8 @@ namespace CrewBoom.Patches
         {
             if (CharacterDatabase.GetCharacter(character, out CustomCharacter customCharacter))
             {
-                //CharacterVisual characterVisual = Object.Instantiate(customCharacter.Visual).AddComponent<CharacterVisual>(); - TODO
-                var characterVisual = Object.Instantiate<GameObject>(__instance.GetCharacterVisual(Characters.metalHead)).AddComponent<CharacterVisual>();
+                //CharacterVisual characterVisual = Object.Instantiate(customCharacter.Visual).AddComponent<CharacterVisual>(); -- TODO
+                var characterVisual = Object.Instantiate<GameObject>(CharacterStreamer.StreamingVisuals).AddComponent<CharacterVisual>();
                 characterVisual.Init(character, controller, IK, setGroundAngleLimit);
                 characterVisual.gameObject.SetActive(true);
                 __result = characterVisual;

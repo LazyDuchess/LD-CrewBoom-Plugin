@@ -64,12 +64,14 @@ namespace CrewBoom.Patches
                     default:
                         return;
                 }
-                /*
+
+                characterObject.WaitForLoadSync();
+
                 string outfitName = characterObject.Definition.Outfits[index].Name;
                 if (outfitName != null && outfitName != string.Empty)
                 {
                     __result = outfitName;
-                } -- TODO*/
+                }
             }
         }
     }
