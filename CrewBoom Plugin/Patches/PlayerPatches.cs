@@ -8,7 +8,7 @@ using UnityEngine;
 
 namespace CrewBoom.Patches
 {
-    [HarmonyPatch(typeof(Reptile.Player), nameof(Reptile.Player.SetCharacter))]
+    [HarmonyPatch(typeof(Player), nameof(Player.SetCharacter))]
     public class PlayerInitOverridePatch
     {
         public static void Prefix(ref Characters setChar)
@@ -47,7 +47,7 @@ namespace CrewBoom.Patches
         }
     }
 
-    [HarmonyPatch(typeof(Reptile.Player), nameof(Reptile.Player.SetOutfit))]
+    [HarmonyPatch(typeof(Player), nameof(Player.SetOutfit))]
     public class PlayerSetOutfitPatch
     {
         public static bool Prefix(int setOutfit, Player __instance, CharacterVisual ___characterVisual, Characters ___character)
@@ -57,8 +57,7 @@ namespace CrewBoom.Patches
                 return true;
             }
 
-            bool isAi = (bool) __instance.GetField("isAI").GetValue(__instance);
-            if (!isAi)
+            if (!__instance.isAI)
             {
                 Core.Instance.SaveManager.CurrentSaveSlot.GetCharacterProgress(___character).outfit = setOutfit;
 
@@ -79,18 +78,16 @@ namespace CrewBoom.Patches
             return false;
         }
     }
-    [HarmonyPatch(typeof(Reptile.Player), nameof(Reptile.Player.SetCurrentMoveStyleEquipped))]
+    [HarmonyPatch(typeof(Player), nameof(Player.SetCurrentMoveStyleEquipped))]
     public class PlayerSetMovestyleEquipped
     {
         public static void Postfix(Player __instance, MoveStyle setMoveStyleEquipped)
         {
-            bool isAi = (bool) __instance.GetField("isAI").GetValue(__instance);
-            if (!isAi)
+            if (!__instance.isAI)
             {
-                Characters character = (Characters) __instance.GetField("character").GetValue(__instance);
-                if (character > Characters.MAX)
+                if (__instance.character > Characters.MAX)
                 {
-                    if (CharacterDatabase.GetFirstOrConfigCharacterId(character, out Guid guid))
+                    if (CharacterDatabase.GetFirstOrConfigCharacterId(__instance.character, out Guid guid))
                     {
                         if (CharacterSaveSlots.GetCharacterData(guid, out CharacterProgress progress))
                         {
@@ -103,16 +100,15 @@ namespace CrewBoom.Patches
         }
     }
 
-    [HarmonyPatch(typeof(Reptile.Player), "SaveSelectedCharacter")]
+    [HarmonyPatch(typeof(Player), nameof(Player.SaveSelectedCharacter))]
     public class PlayerSaveCharacterPatch
     {
         public static bool Prefix(Player __instance, ref Characters selectedCharacter)
         {
             bool runOriginal = true;
 
-            bool isAI = (bool) __instance.GetField("isAI").GetValue(__instance);
             bool isNew = selectedCharacter > Characters.MAX;
-            if (!isAI)
+            if (!__instance.isAI)
             {
                 CharacterSaveSlots.CurrentSaveSlot.LastPlayedCharacter = Guid.Empty;
 
@@ -136,7 +132,7 @@ namespace CrewBoom.Patches
         }
     }
 
-    [HarmonyPatch(typeof(Reptile.Player), nameof(Player.PlayVoice))]
+    [HarmonyPatch(typeof(Player), nameof(Player.PlayVoice))]
     public class PlayerVoicePatch
     {
         public static bool Prefix(AudioClipID audioClipID,
@@ -162,9 +158,7 @@ namespace CrewBoom.Patches
                 }
                 else
                 {
-                    ___audioManager.InvokeMethod("PlaySfxGameplay",
-                        new Type[] { typeof(SfxCollectionID), typeof(AudioClipID), typeof(float) },
-                        customCharacter.SfxID, audioClipID, 0.0f);
+                    ___audioManager.PlaySfxGameplay(customCharacter.SfxID, audioClipID, 0.0f);
                     return false;
                 }
 

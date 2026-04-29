@@ -18,11 +18,17 @@
     <PackageReference Include="BepInEx.Core" Version="5.*" />
     <PackageReference Include="BepInEx.PluginInfoProps" Version="1.1.0" />
     <PackageReference Include="UnityEngine.Modules" Version="2021.3.27" IncludeAssets="compile" />
+	<PackageReference Include="BepInEx.AssemblyPublicizer.MSBuild" Version="0.4.1">
+		<PrivateAssets>all</PrivateAssets>
+		<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+	</PackageReference>
   </ItemGroup>
   
   <ItemGroup>
 	<Reference Include="Assembly-CSharp">
 		<HintPath>$(ManagedPath)/Assembly-CSharp.dll</HintPath>
+		<Private>false</Private>
+		<Publicize>true</Publicize>
 	</Reference>
 	<Reference Include="Unity.TextMeshPro">
 		<HintPath>$(ManagedPath)/Unity.TextMeshPro.dll</HintPath>
