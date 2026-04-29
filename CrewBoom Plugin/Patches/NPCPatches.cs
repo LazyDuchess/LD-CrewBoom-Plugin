@@ -38,7 +38,7 @@ namespace CrewBoom.Patches
                         customCharacter.transform.SetLocalPositionAndRotation(originalAnimator.transform.localPosition, originalAnimator.transform.localRotation);
 
                         SkinnedMeshRenderer customRenderer = customCharacter.Renderers[0];
-                        npcCharacter.SetField("mainRenderer", customRenderer);
+                        npcCharacter.mainRenderer = customRenderer;
 
                         customCharacter.gameObject.AddComponent<LookAtIKComponent>();
                         customCharacter.gameObject.AddComponent<DummyAnimationEventRelay>();

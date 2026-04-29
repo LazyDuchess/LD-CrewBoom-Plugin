@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace CrewBoom.Patches
 {
-    [HarmonyPatch(typeof(Reptile.MainMenuManager), nameof(Reptile.MainMenuManager.Init))]
+    [HarmonyPatch(typeof(MainMenuManager), nameof(MainMenuManager.Init))]
     public class MainMenuPatch
     {
         public static void Postfix(MainMenuManager __instance)

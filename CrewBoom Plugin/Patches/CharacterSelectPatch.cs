@@ -9,7 +9,7 @@ using UnityEngine;
 
 namespace CrewBoom.Patches
 {
-    [HarmonyPatch(typeof(CharacterSelect), nameof(CharacterSelect.PopulateListOfSelectableCharacters)]
+    [HarmonyPatch(typeof(CharacterSelect), nameof(CharacterSelect.PopulateListOfSelectableCharacters))]
     public class CharacterSelectPopulateListPatch
     {
         public static void Postfix(Player player, List<Characters> ___selectableCharacters, CharacterSelect __instance)
