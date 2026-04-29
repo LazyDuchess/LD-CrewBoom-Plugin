@@ -78,16 +78,23 @@ namespace CrewBoom
         {
             bool foundAtLeastOneCharacter = false;
 
-            foreach (string filePath in Directory.GetFiles(ASSET_PATH, "*.cbb"))
+            foreach (var filePath in Directory.GetFiles(ASSET_PATH, "*.cbb"))
             {
                 if (LoadCharacterBundle(filePath, true))
                 {
                     foundAtLeastOneCharacter = true;
                 }
             }
-            foreach (string filePath in Directory.GetFiles(NO_CYPHER_PATH, "*.cbb"))
+            foreach (var filePath in Directory.GetFiles(NO_CYPHER_PATH, "*.cbb"))
             {
                 if (LoadCharacterBundle(filePath, false))
+                {
+                    foundAtLeastOneCharacter = true;
+                }
+            }
+            foreach(var filePath in Directory.GetFiles(Paths.PluginPath, "*.cbb", SearchOption.AllDirectories))
+            {
+                if (LoadCharacterBundle(filePath, true))
                 {
                     foundAtLeastOneCharacter = true;
                 }
