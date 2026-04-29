@@ -480,14 +480,21 @@ namespace CrewBoom
         }
         public static bool HasCypherEnabledForCharacter(Characters character)
         {
-            if (GetFirstOrConfigCharacterId(character, out Guid guid))
+            if (!GetFirstOrConfigCharacterId(character, out Guid guid)) return false;
+            if (GetCharacter(character, out var charObj))
             {
-                if (_cypherMapping.TryGetValue(guid, out bool enabled))
+                if (charObj.Definition.UnlockType == UnlockType.Locked) return false;
+                if (charObj.Definition.UnlockType == UnlockType.Unlockable)
                 {
-                    return enabled;
+                    if (CharacterSaveSlots.GetCharacterData(guid, out var progress))
+                        return progress.unlocked;
                 }
             }
 
+            if (_cypherMapping.TryGetValue(guid, out bool enabled))
+            {
+                return enabled;
+            }
             return false;
         }
         public static bool GetCharacterValueFromGuid(Guid guid, out Characters character)

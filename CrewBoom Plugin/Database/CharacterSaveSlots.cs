@@ -90,6 +90,7 @@ namespace CrewBoom
             else
             {
                 progress = new();
+                progress.unlocked = false;
             }
 
             if (CurrentSaveSlotId == -1)
