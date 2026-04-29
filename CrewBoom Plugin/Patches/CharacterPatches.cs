@@ -9,11 +9,12 @@ namespace CrewBoom.Patches
     [HarmonyPatch(typeof(CharacterLoader), nameof(CharacterLoader.GetCharacterFbx))]
     public class GetFbxPatch
     {
-        public static void Postfix(Characters character, ref GameObject __result)
+        public static void Postfix(Characters character, ref GameObject __result, CharacterLoader __instance)
         {
             if (CharacterDatabase.GetCharacter(character, out CustomCharacter customCharacter))
             {
-                __result = customCharacter.Definition.gameObject;
+                //__result = customCharacter.Definition.gameObject; - TODO
+                __result = __instance.loadedCharacterFbxAssets[(int)Characters.metalHead];
             }
         }
     }
@@ -25,7 +26,8 @@ namespace CrewBoom.Patches
         {
             if (CharacterDatabase.GetCharacter(character, out CustomCharacter customCharacter))
             {
-                ___canBlink = customCharacter.Definition.CanBlink;
+                //___canBlink = customCharacter.Definition.CanBlink; - TODO
+                ___canBlink = false;
             }
         }
     }

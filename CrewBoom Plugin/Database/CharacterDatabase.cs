@@ -105,133 +105,105 @@ namespace CrewBoom
 
         private static bool LoadCharacterBundle(string filePath, bool enableCypher)
         {
-            bool success = false;
+            var fileName = Path.GetFileName(filePath);
+            var configPath = Path.Combine(Path.GetDirectoryName(filePath), Path.GetFileNameWithoutExtension(filePath) + ".json");
+            var streamPath = Path.Combine(Path.GetDirectoryName(filePath), Path.GetFileNameWithoutExtension(filePath) + ".ldcs");
+            var characterToReplace = BrcCharacter.None;
 
-            if (File.Exists(filePath) && Path.GetExtension(filePath) == ".cbb")
+            if (File.Exists(configPath))
             {
-                AssetBundle bundle = null;
+                string configData = File.ReadAllText(configPath);
                 try
                 {
-                    bundle = AssetBundle.LoadFromFile(filePath);
-                }
-                catch (Exception)
-                {
-                    DebugLog.LogWarning($"File at {filePath} is not a {PluginInfo.PLUGIN_NAME} character bundle, it will not be loaded");
-                }
-
-                if (bundle != null)
-                {
-                    GameObject[] objects = bundle.LoadAllAssets<GameObject>();
-                    CharacterDefinition characterDefinition = null;
-                    foreach (GameObject obj in objects)
+                    var config = JsonUtility.FromJson<CharacterConfig>(configData);
+                    if (Enum.TryParse<BrcCharacter>(config.CharacterToReplace, out var newCharacterReplacement))
                     {
-                        characterDefinition = obj.GetComponent<CharacterDefinition>();
-                        if (characterDefinition != null)
-                        {
-                            break;
-                        }
-                    }
-                    if (characterDefinition != null)
-                    {
-                        string fileName = Path.GetFileName(filePath);
-
-                        BrcCharacter characterToReplace = BrcCharacter.None;
-
-                        string potentialConfigPath = Path.Combine(Path.GetDirectoryName(filePath), Path.GetFileNameWithoutExtension(filePath) + ".json");
-                        if (File.Exists(potentialConfigPath))
-                        {
-                            string configData = File.ReadAllText(potentialConfigPath);
-                            try
-                            {
-                                CharacterConfig config = JsonUtility.FromJson<CharacterConfig>(configData);
-                                if (Enum.TryParse(config.CharacterToReplace, out BrcCharacter newCharacterReplacement))
-                                {
-                                    characterToReplace = newCharacterReplacement;
-                                }
-                                else
-                                {
-                                    DebugLog.LogWarning($"The configured replacement character for the bundle {fileName} (\"{config.CharacterToReplace}\") is not a valid character!");
-                                }
-                            }
-                            catch (Exception)
-                            {
-                                DebugLog.LogError($"Failed to read JSON config for \"{fileName}\"");
-                            }
-                        }
-
-                        StringBuilder characterLog = new StringBuilder();
-                        characterLog.Append($"Loading \"{characterDefinition.CharacterName}\"");
-                        if (characterToReplace == BrcCharacter.None)
-                        {
-                            characterLog.Append(" (additional character");
-                            if (!enableCypher)
-                            {
-                                characterLog.Append(", disabled in cypher");
-                            }
-                            characterLog.Append(')');
-                        }
-                        characterLog.Append("...");
-                        DebugLog.LogMessage(characterLog.ToString());
-
-                        if (Guid.TryParse(characterDefinition.Id, out Guid id))
-                        {
-                            DebugLog.LogInfo($"GUID: {id}");
-
-                            if (_characterBundlePaths.ContainsKey(id))
-                            {
-                                DebugLog.LogWarning($"Character's GUID already exists. Make sure to not have duplicate character bundles.");
-                                return false;
-                            }
-
-                            success = true;
-
-                            _characterBundlePaths.Add(id, filePath);
-
-                            SfxCollectionID sfxID = SfxCollectionID.NONE;
-                            if (characterToReplace != BrcCharacter.None)
-                            {
-                                _characterIds[(Characters)characterToReplace].Add(id);
-                            }
-                            else
-                            {
-                                NewCharacterCount++;
-
-                                Characters newCharacter = Characters.MAX + NewCharacterCount;
-                                sfxID = SfxCollectionID.MAX + NewCharacterCount;
-
-                                if (_characterIds.ContainsKey(newCharacter))
-                                {
-                                    _characterIds[newCharacter].Add(id);
-                                }
-                                else
-                                {
-                                    _characterIds.Add(newCharacter, new List<Guid>()
-                                    {
-                                        id
-                                    });
-                                }
-                                _cypherMapping.Add(id, enableCypher);
-                            }
-
-                            //Create a new custom character instance and store it
-                            CustomCharacter customCharacter = new CustomCharacter(characterDefinition, sfxID, characterToReplace != BrcCharacter.None);
-                            _customCharacters.Add(id, customCharacter);
-                        }
-                        else
-                        {
-                            DebugLog.LogError($"This character's GUID (\"{characterDefinition.Id}\") is invalid! Make sure their bundle was built correctly.");
-                        }
+                        characterToReplace = newCharacterReplacement;
                     }
                     else
                     {
-                        DebugLog.LogWarning($"The asset bundle at \"{filePath}\" does not have a CharacterDefinition. You may be trying to load a character that was made with a different version of this plugin.");
+                        DebugLog.LogWarning($"The configured replacement character for the bundle {fileName} (\"{config.CharacterToReplace}\") is not a valid character!");
                     }
-
-                    //bundle.Unload(false);
+                }
+                catch (Exception)
+                {
+                    DebugLog.LogError($"Failed to read JSON config for \"{fileName}\"");
                 }
             }
 
-            return success;
+            CharacterDefinition characterDef = null;
+            CharacterStreamData streamData = null;
+
+            if (File.Exists(streamPath))
+            {
+                streamData = new CharacterStreamData();
+                using (var fs = new FileStream(streamPath, FileMode.Open, FileAccess.Read))
+                {
+                    using (var br = new BinaryReader(fs))
+                    {
+                        streamData.Read(br);
+                    }
+                }
+            }
+            else
+            {
+                var bundle = AssetBundle.LoadFromFile(filePath);
+                var objects = bundle.LoadAllAssets<GameObject>();
+                foreach (var obj in objects)
+                {
+                    characterDef = obj.GetComponent<CharacterDefinition>();
+                    if (characterDef != null)
+                    {
+                        streamData = new CharacterStreamData();
+                        streamData.FromCharacter(characterDef);
+                        using (var fs = new FileStream(streamPath, FileMode.Create, FileAccess.Write))
+                        {
+                            using (var bw = new BinaryWriter(fs))
+                            {
+                                streamData.Write(bw);
+                            }
+                        }
+                        break;
+                    }
+                }
+                bundle.Unload(true);
+            }
+
+            if (streamData == null) return false;
+
+            var guid = Guid.Parse(streamData.Id);
+
+            _characterBundlePaths[guid] = filePath;
+
+            var sfxID = SfxCollectionID.NONE;
+            if (characterToReplace != BrcCharacter.None)
+            {
+                _characterIds[(Characters)characterToReplace].Add(guid);
+            }
+            else
+            {
+                NewCharacterCount++;
+
+                var newCharacter = Characters.MAX + NewCharacterCount;
+                sfxID = SfxCollectionID.MAX + NewCharacterCount;
+
+                if (_characterIds.ContainsKey(newCharacter))
+                {
+                    _characterIds[newCharacter].Add(guid);
+                }
+                else
+                {
+                    _characterIds.Add(newCharacter, new List<Guid>()
+                                    {
+                                        guid
+                                    });
+                }
+                _cypherMapping.Add(guid, enableCypher);
+            }
+
+            var customCharacter = new CustomCharacter(streamData, sfxID, filePath, characterToReplace != BrcCharacter.None);
+            _customCharacters.Add(guid, customCharacter);
+            return true;
         }
 
         public static void SetOutfitShader(Shader shader)
@@ -243,7 +215,7 @@ namespace CrewBoom
 
             foreach (CustomCharacter character in _customCharacters.Values)
             {
-                character.ApplyShaderToOutfits(shader);
+                //character.ApplyShaderToOutfits(shader); - TODO
             }
         }
         public static void SetGraffitiShader(Shader shader)
@@ -255,7 +227,7 @@ namespace CrewBoom
 
             foreach (CustomCharacter character in _customCharacters.Values)
             {
-                character.ApplyShaderToGraffiti(shader);
+                //character.ApplyShaderToGraffiti(shader); - TODO
             }
         }
 
@@ -299,7 +271,7 @@ namespace CrewBoom
                     {
                         if (GetCharacter(guid, out CustomCharacter customCharacter))
                         {
-                            customCharacter.ApplySfxCollection(collection);
+                            //customCharacter.ApplySfxCollection(collection); - TODO
                         }
                     }
                 }
@@ -380,7 +352,7 @@ namespace CrewBoom
 
             if (GetCharacter(character, out CustomCharacter customCharacter))
             {
-                name = customCharacter.Definition.CharacterName;
+                name = customCharacter.StreamData.Name;
                 return true;
             }
 
@@ -458,9 +430,9 @@ namespace CrewBoom
 
             foreach (CustomCharacter character in _customCharacters.Values)
             {
-                if (character.Graffiti != null)
+                if (character.StreamData.HasGraffiti)
                 {
-                    if (character.Graffiti.title == title)
+                    if (character.StreamData.GrafTitle == title)
                     {
                         characterObject = character;
                         return true;
@@ -483,8 +455,8 @@ namespace CrewBoom
             if (!GetFirstOrConfigCharacterId(character, out Guid guid)) return false;
             if (GetCharacter(character, out var charObj))
             {
-                if (charObj.Definition.UnlockType == UnlockType.Locked) return false;
-                if (charObj.Definition.UnlockType == UnlockType.Unlockable)
+                if (charObj.StreamData.UnlockType == UnlockType.Locked) return false;
+                if (charObj.StreamData.UnlockType == UnlockType.Unlockable)
                 {
                     if (CharacterSaveSlots.GetCharacterData(guid, out var progress))
                         return progress.unlocked;

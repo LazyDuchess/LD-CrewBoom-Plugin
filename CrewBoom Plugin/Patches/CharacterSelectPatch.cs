@@ -113,7 +113,8 @@ namespace CrewBoom.Patches
         {
             if (CharacterDatabase.GetCharacter(c, out CustomCharacter customCharacter))
             {
-                c = (Characters)customCharacter.Definition.FreestyleAnimation;
+                //c = (Characters)customCharacter.Definition.FreestyleAnimation; - TODO
+                c = Characters.metalHead;
             }
         }
     }
@@ -129,10 +130,10 @@ namespace CrewBoom.Patches
             if (character > Characters.MAX && CharacterDatabase.GetCharacter(character, out CustomCharacter customCharacter))
             {
                 //SetCharacterName
-                ___characterNameLabel.text = customCharacter.Definition.CharacterName;
+                ___characterNameLabel.text = customCharacter.StreamData.Name;
                 //SetCharacterOutfitsUnlocked
                 ___characterUnlockedOutfitCountLabel.text = "4/4";
-                if (CharacterSaveSlots.GetCharacterData(Guid.Parse(customCharacter.Definition.Id), out CharacterProgress data))
+                if (CharacterSaveSlots.GetCharacterData(Guid.Parse(customCharacter.StreamData.Id), out CharacterProgress data))
                 {
                     __instance.SetCharacterSelectUIMoveStyle(data.moveStyle);
                 }

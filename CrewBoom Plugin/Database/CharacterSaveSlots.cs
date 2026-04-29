@@ -112,7 +112,7 @@ namespace CrewBoom
                     progress = new()
                     {
                         outfit = 0,
-                        moveStyle = (MoveStyle)customCharacter.Definition.DefaultMovestyle,
+                        moveStyle = (MoveStyle)customCharacter.StreamData.DefaultMoveStyle,
                         moveStyleSkin = 0
                     };
                     _progressLookup.Add(guid, progress);

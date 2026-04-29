@@ -10,6 +10,18 @@ namespace CrewBoom.Data
 {
     public class CustomCharacter
     {
+        public CharacterStreamData StreamData { get; private set; }
+        public SfxCollectionID SfxID { get; private set; }
+        public SfxCollection Sfx { get; private set; }
+        private string _path;
+
+        public CustomCharacter(CharacterStreamData streamData, SfxCollectionID sfxID, string path, bool replacement)
+        {
+            StreamData = streamData;
+            SfxID = sfxID;
+            _path = path;
+        }
+        /*
         public CharacterDefinition Definition { get; private set; }
         public SfxCollection Sfx { get; private set; }
         public SfxCollectionID SfxID { get; private set; }
@@ -221,5 +233,6 @@ namespace CrewBoom.Data
 
             Graffiti.graffitiMaterial.shader = shader;
         }
+     */
     }
 }

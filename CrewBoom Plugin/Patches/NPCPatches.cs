@@ -11,6 +11,7 @@ namespace CrewBoom.Patches
     {
         public static void Prefix(NPC __instance, Characters ___character)
         {
+            /*
             OutfitSwappableCharacter[] characters = __instance.GetComponentsInChildren<OutfitSwappableCharacter>(true);
             if (characters != null && characters.Length > 0)
             {
@@ -42,6 +43,7 @@ namespace CrewBoom.Patches
 
                         customCharacter.gameObject.AddComponent<LookAtIKComponent>();
                         customCharacter.gameObject.AddComponent<DummyAnimationEventRelay>();
+
                         if (swappableCharacter.Definition.CanBlink)
                         {
                             StoryBlinkAnimation blinkAnimation = customCharacter.gameObject.AddComponent<StoryBlinkAnimation>();
@@ -67,11 +69,12 @@ namespace CrewBoom.Patches
             else
             {
                 ReplaceNonSwappableCharacter(__instance, ___character);
-            }
+            } -- TODO*/
         }
 
         private static void ReplaceNonSwappableCharacter(NPC __instance, Characters ___character)
         {
+            /*
             if (CharacterDatabase.GetCharacter(___character, out CustomCharacter character))
             {
                 DummyAnimationEventRelay animatorBase = __instance.GetComponentInChildren<DummyAnimationEventRelay>(true);
@@ -115,7 +118,7 @@ namespace CrewBoom.Patches
                 //Need to use DestroyImmediate because Destroy won't destroy it in time for the actual function running
                 //to not find the destroyed object still
                 Object.DestroyImmediate(originalAnimator.gameObject);
-            }
+            } -- TODO*/
         }
     }
 }

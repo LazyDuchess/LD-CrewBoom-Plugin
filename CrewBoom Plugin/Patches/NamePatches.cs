@@ -13,7 +13,7 @@ namespace CrewBoom.Patches
         {
             if (CharacterDatabase.GetCharacter(character, out CustomCharacter customCharacter))
             {
-                __result = customCharacter.Definition.CharacterName;
+                __result = customCharacter.StreamData.Name;
             }
         }
     }
@@ -64,12 +64,12 @@ namespace CrewBoom.Patches
                     default:
                         return;
                 }
-
+                /*
                 string outfitName = characterObject.Definition.Outfits[index].Name;
                 if (outfitName != null && outfitName != string.Empty)
                 {
                     __result = outfitName;
-                }
+                } -- TODO*/
             }
         }
     }

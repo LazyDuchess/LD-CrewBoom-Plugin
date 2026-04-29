@@ -27,12 +27,12 @@ namespace CrewBoom.Patches
                 Characters character = (Characters)i;
                 if (CharacterDatabase.GetCharacter(character, out CustomCharacter customCharacter))
                 {
-                    if (customCharacter.Definition.Graffiti)
+                    if (customCharacter.StreamData.HasGraffiti)
                     {
                         GraffitiArt graffiti = info.FindByCharacter(character);
 
-                        Texture mainTex = customCharacter.Definition.Graffiti.mainTexture;
-                        graffiti.graffitiMaterial.mainTexture = mainTex;
+                        //Texture mainTex = customCharacter.Definition.Graffiti.mainTexture;
+                        //graffiti.graffitiMaterial.mainTexture = mainTex; - TODO
                     }
                 }
             }
@@ -49,11 +49,12 @@ namespace CrewBoom.Patches
         {
             if (character > Characters.MAX)
             {
+                /*
                 if (CharacterDatabase.GetCharacter(character, out CustomCharacter customCharacter))
                 {
                     __result = customCharacter.Graffiti;
                     return false;
-                }
+                } -- TODO */
                 character = Characters.metalHead;
             }
 
@@ -67,10 +68,12 @@ namespace CrewBoom.Patches
         {
             if (__result != null || !string.IsNullOrEmpty(grafTitle))
             {
+                /*
                 if (CharacterDatabase.GetCharacterWithGraffitiTitle(grafTitle, out CustomCharacter customCharacter))
                 {
                     __result = customCharacter.Graffiti;
-                }
+                } -- TODO
+                */
             }
         }
     }
@@ -86,11 +89,11 @@ namespace CrewBoom.Patches
             {
                 if (CharacterDatabase.GetCharacter(___player.character, out CustomCharacter customCharacter))
                 {
-                    if (customCharacter.Definition.Graffiti)
+                    if (customCharacter.StreamData.HasGraffiti)
                     {
                         if (___grafArt == ___graffitiArtInfo.FindByCharacter(___player.character))
                         {
-                            ___player.ui.graffitiTitle.text = $"'{customCharacter.Definition.GraffitiName}'";
+                            ___player.ui.graffitiTitle.text = $"'{customCharacter.StreamData.GrafTitle}'";
                         }
                     }
                 }

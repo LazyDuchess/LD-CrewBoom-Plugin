@@ -13,11 +13,13 @@ namespace CrewBoom.Patches
                                    RuntimeAnimatorController controller,
                                    bool IK,
                                    float setGroundAngleLimit,
+                                   CharacterConstructor __instance,
                                    ref CharacterVisual __result)
         {
             if (CharacterDatabase.GetCharacter(character, out CustomCharacter customCharacter))
             {
-                CharacterVisual characterVisual = Object.Instantiate(customCharacter.Visual).AddComponent<CharacterVisual>();
+                //CharacterVisual characterVisual = Object.Instantiate(customCharacter.Visual).AddComponent<CharacterVisual>(); - TODO
+                var characterVisual = Object.Instantiate<GameObject>(__instance.GetCharacterVisual(Characters.metalHead)).AddComponent<CharacterVisual>();
                 characterVisual.Init(character, controller, IK, setGroundAngleLimit);
                 characterVisual.gameObject.SetActive(true);
                 __result = characterVisual;

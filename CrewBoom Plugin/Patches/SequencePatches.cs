@@ -69,6 +69,7 @@ namespace CrewBoom.Patches
 
         private static void SwapOutfitSwappable(OutfitSwappableCharacter swappable)
         {
+            /*
             if (!CharacterDatabase.GetCharacter(swappable.Character, out CustomCharacter character))
             {
                 return;
@@ -138,7 +139,7 @@ namespace CrewBoom.Patches
 
             Object.Destroy(customCharacter);
 
-            originalAnimator.Rebind(true);
+            originalAnimator.Rebind(true); -- TODO*/
         }
         private static void SwapCutsceneOnlyCharacter(Transform root, Characters character)
         {

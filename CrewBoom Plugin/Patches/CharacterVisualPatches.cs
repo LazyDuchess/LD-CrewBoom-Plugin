@@ -13,7 +13,8 @@ namespace CrewBoom.Patches
         {
             if (CharacterDatabase.GetCharacter(c, out CustomCharacter customCharacter))
             {
-                c = (Characters)customCharacter.Definition.FreestyleAnimation;
+                //c = (Characters)customCharacter.Definition.FreestyleAnimation; - TODO
+                c = Characters.metalHead;
             }
         }
     }
@@ -24,6 +25,7 @@ namespace CrewBoom.Patches
         {
             if (CharacterDatabase.GetCharacter(c, out CustomCharacter customCharacter))
             {
+                /*
                 if (!string.IsNullOrWhiteSpace(customCharacter.Definition.BoEBounceAnimation) && BunchOfEmotesSupport.Installed)
                 {
                     if (BunchOfEmotesSupport.TryGetGameAnimationForCustomAnimationName(customCharacter.Definition.BoEBounceAnimation, out var gameAnim))
@@ -32,7 +34,9 @@ namespace CrewBoom.Patches
                         return false;
                     }
                 }
-                c = (Characters)customCharacter.Definition.BounceAnimation;
+                c = (Characters)customCharacter.Definition.BounceAnimation; -- TODO
+                */
+                c = Characters.metalHead;
             }
             return true;
         }
