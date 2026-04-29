@@ -113,8 +113,10 @@ namespace CrewBoom.Patches
         {
             if (CharacterDatabase.GetCharacter(c, out CustomCharacter customCharacter))
             {
-                //c = (Characters)customCharacter.Definition.FreestyleAnimation; - TODO
-                c = Characters.metalHead;
+                if (customCharacter.Loaded)
+                    c = (Characters)customCharacter.Definition.FreestyleAnimation;
+                else
+                    c = Characters.metalHead;
             }
         }
     }

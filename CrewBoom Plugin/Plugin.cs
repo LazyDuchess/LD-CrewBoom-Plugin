@@ -1,6 +1,7 @@
 ﻿using BepInEx;
 using BepInEx.Bootstrap;
 using CrewBoom.Compatibility;
+using CrewBoom.Database;
 using HarmonyLib;
 using Reptile;
 
@@ -23,6 +24,7 @@ namespace CrewBoom
 
             Logger.LogMessage($"LD {PluginInfo.PLUGIN_GUID} v{PluginInfo.PLUGIN_VERSION} starting...");
 
+            CrewBoomSettings.Initialize(Config);
             CharacterDatabaseConfig.Initialize(Config);
 
             if (CharacterDatabase.Initialize())
@@ -38,6 +40,11 @@ namespace CrewBoom
                 BunchOfEmotesSupport.Initialize();
                 StageManager.OnStagePostInitialization += BoE_StageManager_OnStagePostInitialization;
             }
+        }
+
+        private void Update()
+        {
+            CharacterStreamer.Update();
         }
 
         private void BoE_StageManager_OnStagePostInitialization()

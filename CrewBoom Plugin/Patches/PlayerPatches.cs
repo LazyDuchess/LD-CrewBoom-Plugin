@@ -138,7 +138,17 @@ namespace CrewBoom.Patches
     {
         public static bool Prefix(Player __instance, int newAnim)
         {
-            if ((BunchOfEmotesSupport.Installed && BunchOfEmotesSupport.IsCustomAnimation(__instance.curAnim) && __instance.curAnim == __instance.characterVisual.bounceAnimHash) && (newAnim == __instance.idleHash || newAnim == __instance.idleFidget1Hash || newAnim == __instance.stopRunHash))
+            var doingboedance = false;
+
+            if (CharacterDatabase.GetCharacter(__instance.character, out var customChar))
+            {
+                if (customChar.StreamData.BoEIdleDanceVanilla && __instance.curAnim == __instance.characterVisual.bounceAnimHash)
+                    doingboedance = true;
+                else if (!customChar.StreamData.BoEIdleDanceVanilla && BunchOfEmotesSupport.Installed && BunchOfEmotesSupport.IsCustomAnimation(__instance.curAnim) && __instance.curAnim == __instance.characterVisual.bounceAnimHash)
+                    doingboedance = true;
+            }
+
+            if (doingboedance && (newAnim == __instance.idleHash || newAnim == __instance.idleFidget1Hash || newAnim == __instance.stopRunHash))
                 return false;
             return true;
         }

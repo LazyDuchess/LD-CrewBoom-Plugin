@@ -11,6 +11,7 @@ using System.Text;
 using CrewBoomAPI;
 using System.Linq;
 using UnityEngine.TextCore.Text;
+using CrewBoom.Database;
 
 namespace CrewBoom
 {
@@ -201,7 +202,10 @@ namespace CrewBoom
                 _cypherMapping.Add(guid, enableCypher);
             }
 
-            var customCharacter = new CustomCharacter(streamData, sfxID, filePath, characterToReplace != BrcCharacter.None);
+            var forceLoad = characterToReplace != BrcCharacter.None;
+            if (!CrewBoomSettings.StreamCharacters)
+                forceLoad = true;
+            var customCharacter = new CustomCharacter(streamData, sfxID, filePath, forceLoad);
             _customCharacters.Add(guid, customCharacter);
             return true;
         }

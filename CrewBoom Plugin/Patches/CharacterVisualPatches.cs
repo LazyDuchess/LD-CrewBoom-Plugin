@@ -3,6 +3,7 @@ using CrewBoom.Compatibility;
 using CrewBoom.Data;
 using HarmonyLib;
 using Reptile;
+using UnityEngine;
 
 namespace CrewBoom.Patches
 {
@@ -13,8 +14,10 @@ namespace CrewBoom.Patches
         {
             if (CharacterDatabase.GetCharacter(c, out CustomCharacter customCharacter))
             {
-                //c = (Characters)customCharacter.Definition.FreestyleAnimation; - TODO
-                c = Characters.metalHead;
+                if (customCharacter.Loaded)
+                    c = (Characters)customCharacter.Definition.FreestyleAnimation;
+                else
+                    c = Characters.metalHead;
             }
         }
     }
@@ -25,18 +28,23 @@ namespace CrewBoom.Patches
         {
             if (CharacterDatabase.GetCharacter(c, out CustomCharacter customCharacter))
             {
-                /*
-                if (!string.IsNullOrWhiteSpace(customCharacter.Definition.BoEBounceAnimation) && BunchOfEmotesSupport.Installed)
+                if (!string.IsNullOrWhiteSpace(customCharacter.StreamData.BoEIdleDance))
                 {
-                    if (BunchOfEmotesSupport.TryGetGameAnimationForCustomAnimationName(customCharacter.Definition.BoEBounceAnimation, out var gameAnim))
+                    if (!customCharacter.StreamData.BoEIdleDanceVanilla && BunchOfEmotesSupport.Installed)
                     {
-                        __result = gameAnim;
+                        if (BunchOfEmotesSupport.TryGetGameAnimationForCustomAnimationName(customCharacter.StreamData.BoEIdleDance, out var gameAnim))
+                        {
+                            __result = gameAnim;
+                            return false;
+                        }
+                    }
+                    else if (customCharacter.StreamData.BoEIdleDanceVanilla)
+                    {
+                        __result = Animator.StringToHash(customCharacter.StreamData.BoEIdleDance);
                         return false;
                     }
                 }
-                c = (Characters)customCharacter.Definition.BounceAnimation; -- TODO
-                */
-                c = Characters.metalHead;
+                c = (Characters)customCharacter.StreamData.IdleDance;
             }
             return true;
         }

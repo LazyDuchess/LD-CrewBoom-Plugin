@@ -13,8 +13,10 @@ namespace CrewBoom.Patches
         {
             if (CharacterDatabase.GetCharacter(character, out CustomCharacter customCharacter))
             {
-                //__result = customCharacter.Definition.gameObject; - TODO
-                __result = __instance.loadedCharacterFbxAssets[(int)Characters.metalHead];
+                if (customCharacter.Loaded)
+                    __result = customCharacter.Definition.gameObject;
+                else
+                    __result = __instance.loadedCharacterFbxAssets[(int)Characters.metalHead];
             }
         }
     }
@@ -26,8 +28,10 @@ namespace CrewBoom.Patches
         {
             if (CharacterDatabase.GetCharacter(character, out CustomCharacter customCharacter))
             {
-                //___canBlink = customCharacter.Definition.CanBlink; - TODO
-                ___canBlink = false;
+                if (customCharacter.Loaded)
+                    ___canBlink = customCharacter.Definition.CanBlink;
+                else
+                    ___canBlink = false;
             }
         }
     }
