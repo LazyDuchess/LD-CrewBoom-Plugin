@@ -1,4 +1,5 @@
 ﻿using BepInEx.Logging;
+using CrewBoom.Compatibility;
 using CrewBoom.Data;
 using CrewBoomAPI;
 using HarmonyLib;
@@ -129,6 +130,17 @@ namespace CrewBoom.Patches
             }
 
             return runOriginal;
+        }
+    }
+
+    [HarmonyPatch(typeof(Player), nameof(Player.PlayAnim))]
+    public class PlayerPlayAnimPatch
+    {
+        public static bool Prefix(Player __instance, int newAnim)
+        {
+            if ((BunchOfEmotesSupport.Installed && BunchOfEmotesSupport.IsCustomAnimation(__instance.curAnim) && __instance.curAnim == __instance.characterVisual.bounceAnimHash) && (newAnim == __instance.idleHash || newAnim == __instance.idleFidget1Hash || newAnim == __instance.stopRunHash))
+                return false;
+            return true;
         }
     }
 
