@@ -9,7 +9,7 @@ using BepInEx.Logging;
 
 namespace CrewBoom.Patches
 {
-    [HarmonyPatch(typeof(Reptile.SfxLibrary), nameof(Reptile.SfxLibrary.Init))]
+    [HarmonyPatch(typeof(SfxLibrary), nameof(SfxLibrary.Init))]
     public class InitSfxLibraryPatch
     {
         public static void Postfix(SfxLibrary __instance)
@@ -35,7 +35,7 @@ namespace CrewBoom.Patches
         }
     }
 
-    [HarmonyPatch(typeof(Reptile.SfxLibrary), nameof(Reptile.SfxLibrary.GetSfxCollectionById))]
+    [HarmonyPatch(typeof(SfxLibrary), nameof(SfxLibrary.GetSfxCollectionById))]
     public class GetSfxCollectionIdPatch
     {
         public static void Postfix(SfxCollectionID sfxCollectionId, ref SfxCollection __result, SfxLibrary __instance)
@@ -48,7 +48,7 @@ namespace CrewBoom.Patches
         }
     }
 
-    [HarmonyPatch(typeof(Reptile.AudioManager), "GetCharacterVoiceSfxCollection")]
+    [HarmonyPatch(typeof(AudioManager), nameof(AudioManager.GetCharacterVoiceSfxCollection))]
     public class GetSfxCharacterCollectionPatch
     {
         public static bool Prefix(Characters character, ref SfxCollectionID __result)
@@ -68,7 +68,7 @@ namespace CrewBoom.Patches
             return true;
         }
     }
-    [HarmonyPatch(typeof(Reptile.AudioManager), "PlayVoice")]
+    [HarmonyPatch(typeof(AudioManager), nameof(AudioManager.PlayVoice))]
     [HarmonyPatch(new[] { typeof(VoicePriority), typeof(Characters), typeof(AudioClipID), typeof(AudioSource), typeof(VoicePriority) },
         new ArgumentType[] { ArgumentType.Ref, ArgumentType.Normal, ArgumentType.Normal, ArgumentType.Normal, ArgumentType.Normal })]
     public class PlayVoicePatch
@@ -96,9 +96,7 @@ namespace CrewBoom.Patches
                         clip = customCharacter.Sfx.GetRandomAudioClipById(audioClipID);
                     }
 
-                    __instance.InvokeMethod("PlayNonloopingSfx",
-                        new Type[] { typeof(AudioSource), typeof(AudioClip), typeof(AudioMixerGroup), typeof(float) },
-                        audioSource, clip, ___mixerGroups[5], 0.0f);
+                    __instance.PlayNonloopingSfx(audioSource, clip, ___mixerGroups[5], 0.0f);
                     currentPriority = playbackPriority;
                 }
                 return false;
@@ -107,7 +105,7 @@ namespace CrewBoom.Patches
             return true;
         }
     }
-    [HarmonyPatch(typeof(Reptile.AudioManager), "PlayVoice", typeof(Characters), typeof(AudioClipID))]
+    [HarmonyPatch(typeof(AudioManager), nameof(AudioManager.PlayVoice), typeof(Characters), typeof(AudioClipID))]
     public class PlayVoiceForCharacterPatch
     {
         public static bool Prefix(Characters character,
@@ -129,9 +127,7 @@ namespace CrewBoom.Patches
                         clip = customCharacter.Sfx.GetRandomAudioClipById(audioClipID);
                     }
 
-                    __instance.InvokeMethod("PlayNonloopingSfx",
-                        new Type[] { typeof(AudioSource), typeof(AudioClip), typeof(AudioMixerGroup), typeof(float) },
-                        ___audioSources[5], clip, ___mixerGroups[5], 0.0f);
+                    __instance.PlayNonloopingSfx(___audioSources[5], clip, ___mixerGroups[5], 0.0f);
                 }
                 return false;
             }

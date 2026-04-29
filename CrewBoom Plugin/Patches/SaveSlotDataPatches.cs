@@ -4,7 +4,7 @@ using System;
 
 namespace CrewBoom.Patches
 {
-    [HarmonyPatch(typeof(Reptile.SaveSlotData), nameof(Reptile.SaveSlotData.GetCharacterProgress))]
+    [HarmonyPatch(typeof(SaveSlotData), nameof(SaveSlotData.GetCharacterProgress))]
     public class SaveSlotGetProgressPatch
     {
         public static bool Prefix(Characters character, ref CharacterProgress __result)

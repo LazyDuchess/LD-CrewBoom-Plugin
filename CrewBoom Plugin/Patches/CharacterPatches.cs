@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace CrewBoom.Patches
 {
-    [HarmonyPatch(typeof(Reptile.CharacterLoader), nameof(Reptile.CharacterLoader.GetCharacterFbx))]
+    [HarmonyPatch(typeof(CharacterLoader), nameof(CharacterLoader.GetCharacterFbx))]
     public class GetFbxPatch
     {
         public static void Postfix(Characters character, ref GameObject __result)
@@ -18,7 +18,7 @@ namespace CrewBoom.Patches
         }
     }
 
-    [HarmonyPatch(typeof(Reptile.CharacterVisual), nameof(Reptile.CharacterVisual.Init))]
+    [HarmonyPatch(typeof(CharacterVisual), nameof(CharacterVisual.Init))]
     public class BlinkPatch
     {
         public static void Postfix(Characters character, ref bool ___canBlink)
@@ -30,7 +30,7 @@ namespace CrewBoom.Patches
         }
     }
 
-    [HarmonyPatch(typeof(Reptile.CharacterVisual), "SetInlineSkatesPropsMode")]
+    [HarmonyPatch(typeof(CharacterVisual), nameof(CharacterVisual.SetInlineSkatesPropsMode))]
     public class InlineSkatesTransformPatch
     {
         static void Postfix(CharacterVisual.MoveStylePropMode mode,
@@ -50,8 +50,7 @@ namespace CrewBoom.Patches
                 return;
             }
 
-            Characters character = (Characters)player.GetField("character").GetValue(player);
-            if (CharacterDatabase.HasCharacter(character))
+            if (CharacterDatabase.HasCharacter(player.character))
             {
                 Transform offsetL = ___footL.Find(CharUtil.SKATE_OFFSET_L);
                 Transform offsetR = ___footR.Find(CharUtil.SKATE_OFFSET_R);

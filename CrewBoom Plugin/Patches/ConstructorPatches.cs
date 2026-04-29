@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace CrewBoom.Patches
 {
-    [HarmonyPatch(typeof(Reptile.CharacterConstructor), nameof(Reptile.CharacterConstructor.CreateNewCharacterVisual))]
+    [HarmonyPatch(typeof(CharacterConstructor), nameof(CharacterConstructor.CreateNewCharacterVisual))]
     public class ConstructorCreateVisualPatch
     {
         public static bool Prefix(Characters character,

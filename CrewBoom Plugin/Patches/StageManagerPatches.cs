@@ -5,7 +5,7 @@ using System;
 
 namespace CrewBoom.Patches
 {
-    [HarmonyPatch(typeof(Reptile.StageManager), "GetPlayerCharacter")]
+    [HarmonyPatch(typeof(StageManager), nameof(StageManager.GetPlayerCharacter))]
     public class SetupPatch
     {
         public static bool Prefix(ref Characters __result)

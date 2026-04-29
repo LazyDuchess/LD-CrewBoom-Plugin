@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace CrewBoom.Patches
 {
-    [HarmonyPatch(typeof(Reptile.CharacterLoader), "LoadMaterialForCharacter")]
+    [HarmonyPatch(typeof(CharacterLoader), nameof(CharacterLoader.LoadMaterialForCharacter))]
     public class OutfitShaderGrab
     {
         public static void Postfix(Characters characterToLoad, int outfitIndex, Assets ___assets, CharacterLoader __instance)
@@ -14,10 +14,10 @@ namespace CrewBoom.Patches
 
             CharacterDatabase.SetOutfitShader(materialAsset.shader);
 
-            __instance.InvokeMethod("AddCharacterMaterial", characterToLoad, outfitIndex, materialAsset);
+            __instance.AddCharacterMaterial(characterToLoad, outfitIndex, materialAsset);
         }
     }
-    [HarmonyPatch(typeof(Reptile.CharacterLoader), "LoadMaterialsForCharacterASync")]
+    [HarmonyPatch(typeof(CharacterLoader), nameof(CharacterLoader.LoadMaterialsForCharacterASync))]
     public class OutfitShaderGrabAsync
     {
         public static IEnumerator Postfix(IEnumerator __result, Characters characterToLoad, int outfitIndex, Assets ___assets, CharacterLoader __instance)
@@ -29,7 +29,7 @@ namespace CrewBoom.Patches
 
             CharacterDatabase.SetOutfitShader(material.shader);
 
-            __instance.InvokeMethod("AddCharacterMaterial", characterToLoad, outfitIndex, material);
+            __instance.AddCharacterMaterial(characterToLoad, outfitIndex, material);
 
             yield break;
         }

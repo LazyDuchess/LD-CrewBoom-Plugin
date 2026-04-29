@@ -9,7 +9,7 @@ using UnityEngine.Playables;
 
 namespace CrewBoom.Patches
 {
-    [HarmonyPatch(typeof(Reptile.SequenceHandler), "ReplaceMaterialsOnCharactersInCutscene")]
+    [HarmonyPatch(typeof(SequenceHandler), nameof(SequenceHandler.ReplaceMaterialsOnCharactersInCutscene))]
     public class SequenceCharacterModelPatch
     {
         private static Dictionary<string, Characters> CutsceneOnlyCharacters = new Dictionary<string, Characters>
@@ -93,7 +93,7 @@ namespace CrewBoom.Patches
 
             originalAnimator.avatar = customAnimator.avatar;
             SkinnedMeshRenderer customRenderer = customAnimator.GetComponentInChildren<SkinnedMeshRenderer>(true);
-            swappable.SetField("mainRenderer", customRenderer);
+            swappable.mainRenderer = customRenderer;
 
             foreach (Transform child in originalAnimator.transform)
             {
@@ -148,7 +148,7 @@ namespace CrewBoom.Patches
             }
 
             OutfitSwappableCharacter swappable = root.gameObject.AddComponent<OutfitSwappableCharacter>();
-            swappable.SetField("character", character);
+            swappable.character = character;
 
             SwapOutfitSwappable(swappable);
         }

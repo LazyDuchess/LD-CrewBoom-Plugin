@@ -9,7 +9,7 @@ using UnityEngine;
 
 namespace CrewBoom.Patches
 {
-    [HarmonyPatch(typeof(Reptile.CharacterSelect), "PopulateListOfSelectableCharacters")]
+    [HarmonyPatch(typeof(CharacterSelect), nameof(CharacterSelect.PopulateListOfSelectableCharacters)]
     public class CharacterSelectPopulateListPatch
     {
         public static void Postfix(Player player, List<Characters> ___selectableCharacters, CharacterSelect __instance)
@@ -19,23 +19,21 @@ namespace CrewBoom.Patches
                 return;
             }
 
-            Characters playerCharacter = (Characters)player.GetField("character").GetValue(player);
-
             int max = (int)Characters.MAX;
             for (int i = max + 1; i <= max + CharacterDatabase.NewCharacterCount; i++)
             {
                 Characters character = (Characters)i;
-                if (playerCharacter != character && CharacterDatabase.HasCypherEnabledForCharacter(character))
+                if (player.character != character && CharacterDatabase.HasCypherEnabledForCharacter(character))
                 {
                     ___selectableCharacters.Add(character);
                 }
             }
 
-            __instance.InvokeMethod("Shuffle", ___selectableCharacters);
+            __instance.Shuffle(___selectableCharacters);
         }
     }
 
-    [HarmonyPatch(typeof(Reptile.CharacterSelect), "SetPlayerToCharacter")]
+    [HarmonyPatch(typeof(CharacterSelect), nameof(CharacterSelect.SetPlayerToCharacter))]
     public class CharacterSelectSetPlayerPatch
     {
         public static bool Prefix(int index,
@@ -45,22 +43,21 @@ namespace CrewBoom.Patches
                                   Player ___player)
         {
             CharacterSelectCharacter characterSelectCharacter = ___charactersInCircle[index];
-            __state = (Characters)characterSelectCharacter.GetField("character").GetValue(characterSelectCharacter);
+            __state = characterSelectCharacter.character;
 
             if (__state > Characters.MAX)
             {
-                Characters character1 = (Characters)___player.GetField("character").GetValue(___player);
-                Characters character2 = __state;
+                Characters character1 = ___player.character;
+                Characters character2 = characterSelectCharacter.character;
                 ___player.SetCharacter(character2);
                 ___player.InitVisual();
-                CharacterVisual playerVisual = ___player.GetFieldValue<CharacterVisual>("characterVisual");
-                ___player.PlayAnim((int)playerVisual.GetField("bounceAnimHash").GetValue(playerVisual));
+                CharacterVisual playerVisual = ___player.characterVisual;
+                ___player.PlayAnim(playerVisual.bounceAnimHash);
                 ___player.SetCurrentMoveStyleEquipped(Core.Instance.SaveManager.CurrentSaveSlot.GetCharacterProgress(character2).moveStyle);
-                CharacterVisual swapVisual = characterSelectCharacter.GetFieldValue<CharacterVisual>("visual");
+                CharacterVisual swapVisual = characterSelectCharacter.visual;
                 ___player.SetRotHard(swapVisual.tf.forward);
                 UnityEngine.Object.Destroy(characterSelectCharacter.gameObject);
-                __instance.InvokeMethod("CreateCharacterSelectCharacter", character1, index, CharacterSelectCharacter.CharSelectCharState.BOUNCING);
-
+                __instance.CreateCharacterSelectCharacter(character1, index, CharacterSelectCharacter.CharSelectCharState.BOUNCING);
                 return false;
             }
 
@@ -71,13 +68,13 @@ namespace CrewBoom.Patches
         {
             int outfit = CharUtil.GetSavedCharacterOutfit(__state);
 
-            CharacterVisual visual = (CharacterVisual)___player.GetField("characterVisual").GetValue(___player);
+            CharacterVisual visual = ___player.characterVisual;
 
             CharUtil.TrySetCustomOutfit(visual, outfit, out _);
         }
     }
 
-    [HarmonyPatch(typeof(Reptile.CharacterSelect), "CreateCharacterSelectCharacter")]
+    [HarmonyPatch(typeof(CharacterSelect), nameof(CharacterSelect.CreateCharacterSelectCharacter))]
     public class CharacterSelectCreateCharacterPatch
     {
         public static bool Prefix(Characters character,
@@ -109,7 +106,7 @@ namespace CrewBoom.Patches
         }
     }
 
-    [HarmonyPatch(typeof(Reptile.CharacterSelect), "GetSelectSequenceAnim")]
+    [HarmonyPatch(typeof(CharacterSelect), nameof(CharacterSelect.GetSelectSequenceAnim))]
     public class CharacterSelectSequencePatch
     {
         public static void Prefix(ref Characters c)
@@ -121,7 +118,7 @@ namespace CrewBoom.Patches
         }
     }
 
-    [HarmonyPatch(typeof(Reptile.CharacterSelectUI), nameof(Reptile.CharacterSelectUI.SetCharacterInformation))]
+    [HarmonyPatch(typeof(CharacterSelectUI), nameof(CharacterSelectUI.SetCharacterInformation))]
     public class CharacterSelectUIInfoPatch
     {
         public static bool Prefix(Characters character,
@@ -137,7 +134,7 @@ namespace CrewBoom.Patches
                 ___characterUnlockedOutfitCountLabel.text = "4/4";
                 if (CharacterSaveSlots.GetCharacterData(Guid.Parse(customCharacter.Definition.Id), out CharacterProgress data))
                 {
-                    __instance.InvokeMethod("SetCharacterSelectUIMoveStyle", data.moveStyle);
+                    __instance.SetCharacterSelectUIMoveStyle(data.moveStyle);
                 }
                 return false;
             }

@@ -6,7 +6,7 @@ using CrewBoomMono;
 
 namespace CrewBoom.Patches
 {
-    [HarmonyPatch(typeof(Reptile.NPC), nameof(Reptile.NPC.InitSceneObject))]
+    [HarmonyPatch(typeof(NPC), nameof(NPC.InitSceneObject))]
     public class NPCInitPatch
     {
         public static void Prefix(NPC __instance, Characters ___character)

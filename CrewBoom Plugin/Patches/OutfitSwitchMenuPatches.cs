@@ -12,7 +12,7 @@ using UnityEngine.UI;
 
 namespace CrewBoom.Patches
 {
-    [HarmonyPatch(typeof(Reptile.OutfitSwitchMenu), nameof(Reptile.OutfitSwitchMenu.SkinButtonSelected))]
+    [HarmonyPatch(typeof(OutfitSwitchMenu), nameof(OutfitSwitchMenu.SkinButtonSelected))]
     public class OutfitSwitchSelectPatch
     {
         public static bool Prefix(OutfitSwitchMenu __instance, MenuTimelineButton ___buttonClicked, CharacterVisual ___previewCharacterVisual, int skinIndex)
@@ -30,7 +30,7 @@ namespace CrewBoom.Patches
             return true;
         }
     }
-    [HarmonyPatch(typeof(Reptile.OutfitSwitchMenu), nameof(Reptile.OutfitSwitchMenu.SkinButtonClicked))]
+    [HarmonyPatch(typeof(OutfitSwitchMenu), nameof(OutfitSwitchMenu.SkinButtonClicked))]
     public class OutfitSwitchClickPatch
     {
         public static bool Prefix(OutfitSwitchMenu __instance,
@@ -39,10 +39,9 @@ namespace CrewBoom.Patches
                                   ref MenuTimelineButton ___buttonClicked,
                                   Player ___player)
         {
-            Characters character = (Characters)___player.GetField("character").GetValue(___player);
-            if (character > Characters.MAX)
+            if (___player.character > Characters.MAX)
             {
-                if (CharacterDatabase.GetCharacter(character, out CustomCharacter customCharacter))
+                if (CharacterDatabase.GetCharacter(___player.character, out CustomCharacter customCharacter))
                 {
                     if (__instance.IsTransitioning || ___buttonClicked != null)
                     {
@@ -50,12 +49,11 @@ namespace CrewBoom.Patches
                     }
 
                     ___buttonClicked = clickedButton;
-                    Core.Instance.AudioManager.InvokeMethod("PlaySfxUI", SfxCollectionID.MenuSfx, AudioClipID.confirm, 0.0f);
+                    Core.Instance.AudioManager.PlaySfxUI(SfxCollectionID.MenuSfx, AudioClipID.confirm, 0.0f);
 
                     ___player.SetOutfit(skinIndex);
                     WantedManager.instance.StopPlayerWantedStatus(true, true);
-                    OutfitSwitchBehaviour switchBehaviour = __instance.GetFieldValue<OutfitSwitchBehaviour>("clipBehaviour");
-                    __instance.StartCoroutine(switchBehaviour.FlickerDelayedButtonPress(clickedButton, new UnityAction(switchBehaviour.ExitMenu)));
+                    __instance.StartCoroutine(__instance.clipBehaviour.FlickerDelayedButtonPress(clickedButton, new UnityAction(__instance.clipBehaviour.ExitMenu)));
                 }
                 return false;
             }
@@ -63,7 +61,7 @@ namespace CrewBoom.Patches
             return true;
         }
     }
-    [HarmonyPatch(typeof(Reptile.OutfitSwitchMenu), nameof(Reptile.OutfitSwitchMenu.Activate))]
+    [HarmonyPatch(typeof(OutfitSwitchMenu), nameof(OutfitSwitchMenu.Activate))]
     public class OutfitSwitchActivatePatch
     {
         private static OutfitSwitchMenu _lastMenu;
@@ -78,14 +76,13 @@ namespace CrewBoom.Patches
         {
             _lastMenu = __instance;
 
-            Characters character = (Characters)___player.GetField("character").GetValue(___player);
-            SkinTextPatch.Character = character;
+            SkinTextPatch.Character = ___player.character;
 
-            if (character > Characters.MAX)
+            if (___player.character > Characters.MAX)
             {
-                if (CharacterDatabase.GetCharacter(character, out CustomCharacter customCharacter))
+                if (CharacterDatabase.GetCharacter(___player.character, out CustomCharacter customCharacter))
                 {
-                    CharacterProgress characterProgress = Core.Instance.SaveManager.CurrentSaveSlot.GetCharacterProgress(character);
+                    CharacterProgress characterProgress = Core.Instance.SaveManager.CurrentSaveSlot.GetCharacterProgress(___player.character);
                     CharacterConstructor characterConstructor = ___player.CharacterConstructor;
                     MenuTimelineButton nextButtonUp = null;
                     for (int outfitIndex = 0; outfitIndex < 4; outfitIndex++)
@@ -106,10 +103,10 @@ namespace CrewBoom.Patches
                         MenuTimelineButton button = ___buttons[outfitIndex];
                         int skinIndex = outfitIndex;
 
-                        button.SetButtonVariables(() => __instance.InvokeMethod("SkinButtonSelected", button, skinIndex), true, nextButtonUp, nextButtonDown, ___normalGameFontType, ___selectedGameFontType, ___nonSelectableAlphaValue);
+                        button.SetButtonVariables(() => __instance.SkinButtonSelected(button, skinIndex), true, nextButtonUp, nextButtonDown, ___normalGameFontType, ___selectedGameFontType, ___nonSelectableAlphaValue);
                         button.interactable = true;
                         button.onClick.RemoveAllListeners();
-                        button.onClick.AddListener(() => __instance.InvokeMethod("SkinButtonClicked", button, skinIndex));
+                        button.onClick.AddListener(() => __instance.SkinButtonSelected(button, skinIndex));
                         button.gameObject.SetActive(true);
                         nextButtonUp = button;
                     }

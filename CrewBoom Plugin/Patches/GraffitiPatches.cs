@@ -7,7 +7,7 @@ using UnityEngine;
 
 namespace CrewBoom.Patches
 {
-    [HarmonyPatch(typeof(Reptile.GraffitiLoader), "LoadGraffitiArtInfoAsync")]
+    [HarmonyPatch(typeof(GraffitiLoader), nameof(GraffitiLoader.LoadGraffitiArtInfoAsync))]
     public class GraffitiLoadAsyncPatch
     {
         private static IEnumerator Postfix(IEnumerator __result, Assets assets, GraffitiLoader __instance)
@@ -37,13 +37,12 @@ namespace CrewBoom.Patches
                 }
             }
 
-            __instance.SetField("graffitiArtInfo", graffitiArtInfoRequest.asset);
-
+            __instance.graffitiArtInfo = graffitiArtInfoRequest.asset as GraffitiArtInfo;
             yield break;
         }
     }
 
-    [HarmonyPatch(typeof(Reptile.GraffitiArtInfo), nameof(Reptile.GraffitiArtInfo.FindByCharacter))]
+    [HarmonyPatch(typeof(GraffitiArtInfo), nameof(GraffitiArtInfo.FindByCharacter))]
     public class GraffitiFindCharacterPatch
     {
         public static bool Prefix(ref Characters character, ref GraffitiArt __result)
@@ -61,7 +60,7 @@ namespace CrewBoom.Patches
             return true;
         }
     }
-    [HarmonyPatch(typeof(Reptile.GraffitiArtInfo), nameof(Reptile.GraffitiArtInfo.FindByTitle))]
+    [HarmonyPatch(typeof(GraffitiArtInfo), nameof(GraffitiArtInfo.FindByTitle))]
     public class GraffitiFindTitlePatch
     {
         public static void Postfix(ref GraffitiArt __result, string grafTitle)
@@ -78,23 +77,20 @@ namespace CrewBoom.Patches
 
     //Note:
     //Patching just the UI title since the characters are replacements
-    [HarmonyPatch(typeof(Reptile.GraffitiGame), "SetStateVisual")]
+    [HarmonyPatch(typeof(GraffitiGame), nameof(GraffitiGame.SetStateVisual))]
     public class GraffitiVisualPatch
     {
         public static void Postfix(GraffitiGame.GraffitiGameState setState, Player ___player, GraffitiArt ___grafArt, GraffitiArtInfo ___graffitiArtInfo)
         {
             if (setState == GraffitiGame.GraffitiGameState.SHOW_PIECE)
             {
-                Characters character = (Characters)___player.GetField("character").GetValue(___player);
-                if (CharacterDatabase.GetCharacter(character, out CustomCharacter customCharacter))
+                if (CharacterDatabase.GetCharacter(___player.character, out CustomCharacter customCharacter))
                 {
                     if (customCharacter.Definition.Graffiti)
                     {
-                        if (___grafArt == ___graffitiArtInfo.FindByCharacter(character))
+                        if (___grafArt == ___graffitiArtInfo.FindByCharacter(___player.character))
                         {
-                            FieldInfo uiField = ___player.GetField("ui");
-                            GameplayUI ui = (GameplayUI)uiField.GetValue(___player);
-                            ui.graffitiTitle.text = $"'{customCharacter.Definition.GraffitiName}'";
+                            ___player.ui.graffitiTitle.text = $"'{customCharacter.Definition.GraffitiName}'";
                         }
                     }
                 }

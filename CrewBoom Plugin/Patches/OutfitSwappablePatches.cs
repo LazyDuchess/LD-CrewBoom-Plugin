@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace CrewBoom.Patches
 {
-    [HarmonyPatch(typeof(Reptile.OutfitSwappableCharacter), nameof(Reptile.OutfitSwappableCharacter.SetMaterialAndOutfit))]
+    [HarmonyPatch(typeof(OutfitSwappableCharacter), nameof(OutfitSwappableCharacter.SetMaterialAndOutfit))]
     public class OutfitSwappablePatches
     {
         public static bool Prefix(OutfitSwappableCharacter __instance, ref SkinnedMeshRenderer ___mainRenderer, int outfitIndex)

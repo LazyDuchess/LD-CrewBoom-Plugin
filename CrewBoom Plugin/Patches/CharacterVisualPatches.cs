@@ -5,7 +5,7 @@ using Reptile;
 
 namespace CrewBoom.Patches
 {
-    [HarmonyPatch(typeof(Reptile.CharacterVisual), nameof(CharacterVisual.GetCharacterFreestyleAnim))]
+    [HarmonyPatch(typeof(CharacterVisual), nameof(CharacterVisual.GetCharacterFreestyleAnim))]
     public class CharacterFreestylePatch
     {
         public static void Prefix(ref Characters c)
@@ -16,7 +16,7 @@ namespace CrewBoom.Patches
             }
         }
     }
-    [HarmonyPatch(typeof(Reptile.CharacterVisual), nameof(CharacterVisual.GetCharacterBounceAnim))]
+    [HarmonyPatch(typeof(CharacterVisual), nameof(CharacterVisual.GetCharacterBounceAnim))]
     public class CharacterBouncePatch
     {
         public static void Prefix(ref Characters c)
