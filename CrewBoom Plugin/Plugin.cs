@@ -4,6 +4,7 @@ using CrewBoom.Compatibility;
 using CrewBoom.Database;
 using HarmonyLib;
 using Reptile;
+using UnityEngine;
 
 namespace CrewBoom
 {
@@ -44,7 +45,7 @@ namespace CrewBoom
 
         private void Update()
         {
-            CharacterStreamer.Update();
+            CharacterStreamer.Update(Time.deltaTime);
         }
 
         private void BoE_StageManager_OnStagePostInitialization()

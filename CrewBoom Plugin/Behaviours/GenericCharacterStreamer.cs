@@ -1,4 +1,5 @@
 ﻿using CrewBoom.Data;
+using CrewBoom.Database;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -23,6 +24,7 @@ namespace CrewBoom.Behaviours
         {
             if (_targetCustomCharacter != null)
             {
+                CharacterStreamer.KeepAlive(_targetCustomCharacter, CrewBoomSettings.KeepAliveTime);
                 _targetCustomCharacter.RemoveReference();
             }
         }

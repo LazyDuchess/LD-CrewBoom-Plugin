@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
+using UnityEngine.TextCore.Text;
 
 namespace CrewBoom.Database
 {
@@ -13,6 +14,7 @@ namespace CrewBoom.Database
     {
         private static HashSet<AssetBundleCreateRequest> _cancelledRequests = new();
         private static HashSet<CustomCharacter> _characters = new();
+        private static Dictionary<CustomCharacter, float> _keepAlives = new();
         public static GameObject StreamingVisuals
         {
             get
@@ -52,7 +54,7 @@ namespace CrewBoom.Database
             }
         }
 
-        public static void Update()
+        public static void Update(float delta)
         {
             _cancelledRequests.RemoveWhere(req =>
             {
@@ -68,6 +70,20 @@ namespace CrewBoom.Database
             {
                 return req.UpdateAsyncLoad();
             });
+
+            var keys = new List<CustomCharacter>(_keepAlives.Keys);
+
+            foreach (var key in keys)
+            {
+                var val = _keepAlives[key] - delta;
+                _keepAlives[key] = val;
+
+                if (val <= 0f)
+                {
+                    key.RemoveReference();
+                    _keepAlives.Remove(key);
+                }
+            }
 
             if (Input.GetKeyDown(KeyCode.F8))
                 LogStreamingStats();
@@ -91,6 +107,17 @@ namespace CrewBoom.Database
             }
             Console.WriteLine($"In short, {loadedAmount} characters are loaded out of {outOf}");
             Console.WriteLine("--------------- END ----------------");
+        }
+
+        public static void KeepAlive(CustomCharacter character, float time)
+        {
+            if (time <= 0f) return;
+            if (!character.Loaded) return;
+            if (!_keepAlives.ContainsKey(character))
+            {
+                character.AddReference();
+            }
+            _keepAlives[character] = time;
         }
     }
 }

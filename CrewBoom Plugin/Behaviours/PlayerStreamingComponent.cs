@@ -1,4 +1,5 @@
 ﻿using CrewBoom.Data;
+using CrewBoom.Database;
 using Reptile;
 using System;
 using System.Collections.Generic;
@@ -39,6 +40,7 @@ namespace CrewBoom.Behaviours
             {
                 if (_targetCustomCharacter != null)
                 {
+                    CharacterStreamer.KeepAlive(_targetCustomCharacter, CrewBoomSettings.KeepAliveTime);
                     _targetCustomCharacter.OnLoadedCallback -= OnLoad;
                     _targetCustomCharacter.RemoveReference();
                 }
@@ -70,6 +72,7 @@ namespace CrewBoom.Behaviours
         {
             if (_targetCustomCharacter != null)
             {
+                CharacterStreamer.KeepAlive(_targetCustomCharacter, CrewBoomSettings.KeepAliveTime);
                 _targetCustomCharacter.OnLoadedCallback -= OnLoad;
                 _targetCustomCharacter.RemoveReference();
             }
