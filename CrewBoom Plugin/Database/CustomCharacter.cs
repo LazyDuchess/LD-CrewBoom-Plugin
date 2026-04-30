@@ -177,6 +177,7 @@ namespace CrewBoom.Data
                 if (Definition != null)
                     break;
             }
+            ApplyShaderToOutfits();
             CreateVisual();
             CreateSfxCollection();
             OnLoadedCallback?.Invoke(this);
@@ -352,6 +353,23 @@ namespace CrewBoom.Data
             }
 
             Graffiti.graffitiMaterial.shader = shader;
+        }
+
+        private void ApplyShaderToOutfits()
+        {
+            foreach (var outfit in Definition.Outfits)
+            {
+                foreach (var container in outfit.MaterialContainers)
+                {
+                    for (int i = 0; i < container.Materials.Length; i++)
+                    {
+                        if (container.UseShaderForMaterial[i])
+                        {
+                            container.Materials[i].shader = CharacterDatabase.OutfitShader;
+                        }
+                    }
+                }
+            }
         }
 
         /*

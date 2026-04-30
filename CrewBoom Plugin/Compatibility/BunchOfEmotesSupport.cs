@@ -1,5 +1,6 @@
 ﻿using BepInEx.Bootstrap;
 using CrewBoom.Utility;
+using Reptile;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -47,6 +48,22 @@ namespace CrewBoom.Compatibility
                 var gameAnim = customAnim.Key;
                 GameAnimationByCustomAnimationName[customAnim.Value] = gameAnim;
                 GameAnimations.Add(gameAnim);
+            }
+            RefreshLocalPlayer();
+        }
+
+        private static void RefreshLocalPlayer()
+        {
+            var player = WorldHandler.instance.GetCurrentPlayer();
+            if (player == null) return;
+            if (CharacterDatabase.GetCharacter(player.character, out var customChar))
+            {
+                if (!customChar.StreamData.BoEIdleDanceVanilla && TryGetGameAnimationForCustomAnimationName(customChar.StreamData.BoEIdleDance, out var gameAnim))
+                {
+                    var visual = player.characterVisual;
+                    if (visual == null) return;
+                    visual.bounceAnimHash = gameAnim;
+                }
             }
         }
 

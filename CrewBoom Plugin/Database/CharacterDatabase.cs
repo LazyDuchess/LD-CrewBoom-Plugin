@@ -30,6 +30,8 @@ namespace CrewBoom
         public static bool HasCharacterOverride { get; private set; }
         public static Guid CharacterOverride { get; private set; }
 
+        public static Shader OutfitShader = null;
+
         private static ManualLogSource DebugLog = BepInEx.Logging.Logger.CreateLogSource($"{PluginInfo.PLUGIN_NAME} Database");
 
         public static bool Initialize()
@@ -220,13 +222,15 @@ namespace CrewBoom
                 return;
             }
 
-            foreach (CustomCharacter character in _customCharacters.Values)
-            {
-                //character.ApplyShaderToOutfits(shader); - TODO
-            }
+            OutfitShader = shader;
         }
+
+        private static bool _appliedGrafShaders = false;
+
         public static void SetGraffitiShader(Shader shader)
         {
+            if (_appliedGrafShaders) return;
+
             if (shader == null)
             {
                 return;
@@ -236,6 +240,7 @@ namespace CrewBoom
             {
                 character.ApplyShaderToGraffiti(shader);
             }
+            _appliedGrafShaders = true;
         }
 
         private static void InitializeAPI()
