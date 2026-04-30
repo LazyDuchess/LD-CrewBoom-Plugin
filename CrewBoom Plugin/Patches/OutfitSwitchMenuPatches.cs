@@ -106,7 +106,7 @@ namespace CrewBoom.Patches
                         button.SetButtonVariables(() => __instance.SkinButtonSelected(button, skinIndex), true, nextButtonUp, nextButtonDown, ___normalGameFontType, ___selectedGameFontType, ___nonSelectableAlphaValue);
                         button.interactable = true;
                         button.onClick.RemoveAllListeners();
-                        button.onClick.AddListener(() => __instance.SkinButtonSelected(button, skinIndex));
+                        button.onClick.AddListener(() => __instance.SkinButtonClicked(button, skinIndex));
                         button.gameObject.SetActive(true);
                         nextButtonUp = button;
                     }
