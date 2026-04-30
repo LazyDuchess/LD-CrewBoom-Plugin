@@ -41,8 +41,8 @@ namespace CrewBoom
             {
                 BunchOfEmotesSupport.Initialize();
                 StageManager.OnStagePostInitialization += BoE_StageManager_OnStagePostInitialization;
-                StageManager.OnStagePostInitialization += StageManager_OnStagePostInitialization;
             }
+            StageManager.OnStagePostInitialization += StageManager_OnStagePostInitialization;
         }
 
         private void Update()
