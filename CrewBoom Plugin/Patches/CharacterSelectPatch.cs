@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using TMPro;
 using UnityEngine.Playables;
 using UnityEngine;
+using CrewBoom.Behaviours;
 
 namespace CrewBoom.Patches
 {
@@ -92,6 +93,11 @@ namespace CrewBoom.Patches
         {
             if (character > Characters.MAX)
             {
+                CustomCharacter customChar = null;
+                if (CharacterDatabase.GetCharacter(character, out customChar))
+                {
+                    customChar.WaitForLoadSync();
+                }
                 CharacterVisual newCharacterVisual = ___player.CharacterConstructor.CreateNewCharacterVisual(character, ___player.animatorController, true, ___player.motor.groundDetection.groundLimit);
                 ___charactersInCircle[numInCircle] = newCharacterVisual.gameObject.AddComponent<CharacterSelectCharacter>();
                 ___charactersInCircle[numInCircle].transform.position = ___characterPositions[numInCircle];
@@ -99,6 +105,10 @@ namespace CrewBoom.Patches
                 ___charactersInCircle[numInCircle].transform.parent = ___tf;
                 ___charactersInCircle[numInCircle].Init(__instance, character, ___charCollision, ___charTrigger, ___tf.position, UnityEngine.Object.Instantiate(___swapSequence, ___charactersInCircle[numInCircle].transform).GetComponent<PlayableDirector>());
                 ___charactersInCircle[numInCircle].SetState(startState);
+                if (customChar != null)
+                {
+                    GenericCharacterStreamer.Create(newCharacterVisual.gameObject, customChar);
+                }
 
                 return false;
             }

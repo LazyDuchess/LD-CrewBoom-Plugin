@@ -68,6 +68,29 @@ namespace CrewBoom.Database
             {
                 return req.UpdateAsyncLoad();
             });
+
+            if (Input.GetKeyDown(KeyCode.F8))
+                LogStreamingStats();
+        }
+
+        public static void LogStreamingStats()
+        {
+            var beginIndex = Characters.MAX + 1;
+
+            var loadedAmount = 0;
+            var outOf = CharacterDatabase.NewCharacterCount;
+
+            Console.WriteLine("----- CrewBoom Streaming Stats -----");
+            for (var i = 0; i < CharacterDatabase.NewCharacterCount; i++)
+            {
+                if (CharacterDatabase.GetCharacter(beginIndex + i, out var customChar)) {
+                    Console.WriteLine($"{customChar.StreamData.Name} - Loaded: " + (customChar.Loaded ? "YES" : "NO")  + $" - Refs: {customChar.References}");
+                    if (customChar.Loaded)
+                        loadedAmount++;
+                }
+            }
+            Console.WriteLine($"In short, {loadedAmount} characters are loaded out of {outOf}");
+            Console.WriteLine("--------------- END ----------------");
         }
     }
 }

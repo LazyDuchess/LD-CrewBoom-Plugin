@@ -146,6 +146,7 @@ namespace CrewBoom.Data
         {
             if (Visual != null) return;
             GameObject parent = new GameObject($"{Definition.CharacterName} Visuals");
+            UnityEngine.Object.DontDestroyOnLoad(parent);
             CharacterDefinition characterModel = UnityEngine.Object.Instantiate(Definition);
 
             //InitCharacterModel

@@ -129,8 +129,8 @@ namespace CrewBoom.Behaviours
             _player.SetMoveStyle(MoveStyle.ON_FOOT, true, true);
             _player.SetCurrentMoveStyleEquipped(movestyleEquipped, true, true);
             _player.InitVisual();
-            if (!wasMovestyleEquipped)
-                _player.SetMoveStyle(MoveStyle.ON_FOOT, true, true);
+            if (wasMovestyleEquipped)
+                _player.SwitchToEquippedMovestyle(true, false, true, false);
         }
     }
 }
