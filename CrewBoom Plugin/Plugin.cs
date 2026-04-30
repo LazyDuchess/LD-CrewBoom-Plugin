@@ -40,6 +40,7 @@ namespace CrewBoom
             {
                 BunchOfEmotesSupport.Initialize();
                 StageManager.OnStagePostInitialization += BoE_StageManager_OnStagePostInitialization;
+                StageManager.OnStagePostInitialization += StageManager_OnStagePostInitialization;
             }
         }
 
@@ -51,6 +52,11 @@ namespace CrewBoom
         private void BoE_StageManager_OnStagePostInitialization()
         {
             BunchOfEmotesSupport.CacheAnimations();
+        }
+
+        private void StageManager_OnStagePostInitialization()
+        {
+            CharacterDatabase.RefreshShaders();
         }
     }
 }

@@ -30,6 +30,10 @@
 		<Private>false</Private>
 		<Publicize>true</Publicize>
 	</Reference>
+	<Reference Include="CommonAPI">
+	  <HintPath>Libraries\CommonAPI.dll</HintPath>
+	  <Private>false</Private>
+	</Reference>
 	<Reference Include="Unity.TextMeshPro">
 		<HintPath>$(ManagedPath)/Unity.TextMeshPro.dll</HintPath>
 		<Private>false</Private>
