@@ -57,6 +57,7 @@ namespace CrewBoom.Data
         public CustomCharacter(CharacterStreamData streamData, SfxCollectionID sfxID, string path, bool replacement, bool forceLoad)
         {
             StreamData = streamData;
+            InitializeSfxCollection();
             SfxID = sfxID;
             _path = path;
             KeepLoaded = replacement || forceLoad;
@@ -188,7 +189,7 @@ namespace CrewBoom.Data
             }
             FixCharacterShader();
             CreateVisual();
-            CreateSfxCollection();
+            LoadSfxCollection();
             OnLoadedCallback?.Invoke(this);
         }
 
@@ -203,7 +204,7 @@ namespace CrewBoom.Data
                 Loaded = false;
                 Definition = null;
                 DestroyVisual();
-                DestroySfxCollection();
+                UnloadSfxCollection();
             }
         }
 
@@ -243,7 +244,13 @@ namespace CrewBoom.Data
             Visual = parent;
         }
 
-        private void DestroySfxCollection()
+        private void InitializeSfxCollection()
+        {
+            Sfx = ScriptableObject.CreateInstance<SfxCollection>();
+            UnloadSfxCollection();
+        }
+
+        private void UnloadSfxCollection()
         {
             if (Sfx != null)
             {
@@ -258,7 +265,7 @@ namespace CrewBoom.Data
             }
         }
 
-        private void CreateSfxCollection()
+        private void LoadSfxCollection()
         {
             if (!Definition.HasVoices())
             {
