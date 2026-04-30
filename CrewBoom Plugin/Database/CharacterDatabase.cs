@@ -150,31 +150,51 @@ namespace CrewBoom
             }
             else
             {
-                var bundle = AssetBundle.LoadFromFile(filePath);
-                var objects = bundle.LoadAllAssets<GameObject>();
-                foreach (var obj in objects)
+                try
                 {
-                    characterDef = obj.GetComponent<CharacterDefinition>();
-                    if (characterDef != null)
+                    var bundle = AssetBundle.LoadFromFile(filePath);
+                    var objects = bundle.LoadAllAssets<GameObject>();
+                    foreach (var obj in objects)
                     {
-                        streamData = new CharacterStreamData();
-                        streamData.FromCharacter(characterDef);
-                        using (var fs = new FileStream(streamPath, FileMode.Create, FileAccess.Write))
+                        characterDef = obj.GetComponent<CharacterDefinition>();
+                        if (characterDef != null)
                         {
-                            using (var bw = new BinaryWriter(fs))
+                            streamData = new CharacterStreamData();
+                            streamData.FromCharacter(characterDef);
+                            using (var fs = new FileStream(streamPath, FileMode.Create, FileAccess.Write))
                             {
-                                streamData.Write(bw);
+                                using (var bw = new BinaryWriter(fs))
+                                {
+                                    streamData.Write(bw);
+                                }
                             }
-                        }
                         break;
+                        }
                     }
+                    bundle.Unload(true);
                 }
-                bundle.Unload(true);
+                catch (Exception e)
+                {
+                    DebugLog.LogError($"Failed to load bundle for \"{fileName}\"");
+                    DebugLog.LogError($"{e}");
+                    if (streamData != null)
+                    {
+                        streamData.Release();
+                    }
+                    return false;
+                }
             }
 
             if (streamData == null) return false;
 
             var guid = Guid.Parse(streamData.Id);
+
+            if (_characterBundlePaths.ContainsKey(guid))
+            {
+                DebugLog.LogError($"Failed to load  \"{fileName}\" - there already is a character with the same GUID ({guid})");
+                streamData.Release();
+                return false;
+            }
 
             _characterBundlePaths[guid] = filePath;
 
