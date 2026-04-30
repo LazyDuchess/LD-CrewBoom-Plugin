@@ -86,12 +86,9 @@ namespace CrewBoom.Patches
             {
                 if (CharacterDatabase.GetCharacter(___player.character, out CustomCharacter customCharacter))
                 {
-                    if (customCharacter.StreamData.HasGraffiti)
+                    if (___grafArt == ___graffitiArtInfo.FindByCharacter(___player.character))
                     {
-                        if (___grafArt == ___graffitiArtInfo.FindByCharacter(___player.character))
-                        {
-                            ___player.ui.graffitiTitle.text = $"'{customCharacter.StreamData.GrafTitle}'";
-                        }
+                        ___player.ui.graffitiTitle.text = $"'{customCharacter.Graffiti.title}'";
                     }
                 }
             }

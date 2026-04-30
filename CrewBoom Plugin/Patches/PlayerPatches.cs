@@ -55,7 +55,7 @@ namespace CrewBoom.Patches
             {
                 if (CharacterDatabase.GetCharacter(setChar, out CustomCharacter character))
                 {
-                    var info = new CrewBoomAPI.CharacterInfo(character.StreamData.Name, character.StreamData.GrafTitle);
+                    var info = new CrewBoomAPI.CharacterInfo(character.StreamData.Name, character.Graffiti.title);
                     CrewBoomAPIDatabase.UpdatePlayerCharacter(info);
                 }
                 else

@@ -92,8 +92,8 @@ namespace CrewBoom.Data
             var appEntry = ScriptableObject.CreateInstance<GraffitiAppEntry>();
             appEntry.Size = GraffitiSize.S;
             appEntry.GraffitiTexture = graffitiMaterial.mainTexture;
-            appEntry.Title = StreamData.GrafTitle;
-            appEntry.Artist = StreamData.GrafAuthor;
+            appEntry.Title = graffitiName;
+            appEntry.Artist = graffitiArtist;
 
             graffiti.unlockable = appEntry;
 

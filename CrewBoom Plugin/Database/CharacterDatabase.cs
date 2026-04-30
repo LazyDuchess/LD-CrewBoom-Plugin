@@ -462,13 +462,10 @@ namespace CrewBoom
 
             foreach (CustomCharacter character in _customCharacters.Values)
             {
-                if (character.StreamData.HasGraffiti)
+                if (character.Graffiti.title == title)
                 {
-                    if (character.StreamData.GrafTitle == title)
-                    {
-                        characterObject = character;
-                        return true;
-                    }
+                    characterObject = character;
+                    return true;
                 }
             }
             return false;
