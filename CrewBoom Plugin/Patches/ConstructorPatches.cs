@@ -19,8 +19,15 @@ namespace CrewBoom.Patches
         {
             if (CharacterDatabase.GetCharacter(character, out CustomCharacter customCharacter))
             {
-                //CharacterVisual characterVisual = Object.Instantiate(customCharacter.Visual).AddComponent<CharacterVisual>(); -- TODO
-                var characterVisual = Object.Instantiate<GameObject>(CharacterStreamer.StreamingVisuals).AddComponent<CharacterVisual>();
+                CharacterVisual characterVisual = null;
+                if (customCharacter.Loaded)
+                {
+                    characterVisual = Object.Instantiate(customCharacter.Visual).AddComponent<CharacterVisual>();
+                }
+                else
+                {
+                    characterVisual = Object.Instantiate(CharacterStreamer.StreamingVisuals).AddComponent<CharacterVisual>();
+                }
                 characterVisual.Init(character, controller, IK, setGroundAngleLimit);
                 characterVisual.gameObject.SetActive(true);
                 __result = characterVisual;

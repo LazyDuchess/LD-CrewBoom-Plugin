@@ -35,12 +35,27 @@ namespace CrewBoom.Database
             }
         }
 
+        public static bool UnloadCharacters
+        {
+            get
+            {
+                return _unloadCharacters.Value;
+            }
+
+            set
+            {
+                _unloadCharacters.Value = value;
+            }
+        }
+
         private static ConfigEntry<bool> _streamCharacters;
         private static ConfigEntry<bool> _loadCharactersAsync;
+        private static ConfigEntry<bool> _unloadCharacters;
 
         public static void Initialize(ConfigFile configFile)
         {
-            _streamCharacters = configFile.Bind("General", "Stream Characters", true, "If true, custom characters are dynamically loaded and unloaded during gameplay, as necessary. If false, all custom characters are loaded permanently at startup.");
+            _streamCharacters = configFile.Bind("General", "Stream Characters", true, "If true, custom characters are dynamically loaded during gameplay, as necessary. If false, all custom characters are loaded at startup.");
+            _unloadCharacters = configFile.Bind("General", "Unload Characters", true, "If true, and Stream Characters is also true, characters will be dynamically unloaded during gameplay as they're no longer used. If false, characters will never unload, lowering pop-in as characters load for the first time but increasing memory usage.");
             _loadCharactersAsync = configFile.Bind("General", "Stream Characters Async", true, "If true, and Stream Characters is also true, custom characters will be loaded in the background in order to keep gameplay smooth. This means there might be some pop-in as character models won't always be readily available in memory.");
         }
     }

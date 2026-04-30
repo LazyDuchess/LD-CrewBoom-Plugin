@@ -19,26 +19,28 @@ namespace CrewBoom.Data
 
         public GameObject Visual { get; private set; }
         public bool Loaded { get; private set; }
+        public bool KeepLoaded { get; private set; }
         private string _path;
         private AssetBundle _bundle;
-        private bool _keepLoaded = false;
         public AssetBundleCreateRequest BundleRequest { get; private set; }
 
         public int References = 0;
+
+        public Action<CustomCharacter> OnLoadedCallback;
 
         public CustomCharacter(CharacterStreamData streamData, SfxCollectionID sfxID, string path, bool replacement)
         {
             StreamData = streamData;
             SfxID = sfxID;
             _path = path;
-            _keepLoaded = replacement;
-            if (_keepLoaded)
+            KeepLoaded = replacement;
+            if (KeepLoaded)
                 LoadSync();
         }
 
         public void AddReference()
         {
-            if (_keepLoaded) return;
+            if (KeepLoaded) return;
             References++;
             if (CrewBoomSettings.LoadCharactersAsync && CrewBoomSettings.StreamCharacters)
             {
@@ -52,7 +54,8 @@ namespace CrewBoom.Data
 
         public void RemoveReference()
         {
-            if (_keepLoaded) return;
+            if (!CrewBoomSettings.UnloadCharacters) return;
+            if (KeepLoaded) return;
             References--;
             if (References <= 0 && CrewBoomSettings.StreamCharacters)
             {
@@ -115,6 +118,7 @@ namespace CrewBoom.Data
                     break;
             }
             CreateVisual();
+            OnLoadedCallback?.Invoke(this);
         }
 
         private void Unload()

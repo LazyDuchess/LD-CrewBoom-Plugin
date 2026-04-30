@@ -54,30 +54,20 @@ namespace CrewBoom.Database
 
         public static void Update()
         {
-            var remainingRequests = new HashSet<AssetBundleCreateRequest>();
-            foreach(var req in _cancelledRequests)
+            _cancelledRequests.RemoveWhere(req =>
             {
                 if (req.isDone)
                 {
                     req.assetBundle.Unload(true);
+                    return true;
                 }
-                else
-                {
-                    remainingRequests.Add(req);
-                }
-            }
-            _cancelledRequests = remainingRequests;
+                return false;
+            });
 
-            var remainingCharacters = new HashSet<CustomCharacter>();
-            foreach(var ch in _characters)
+            _characters.RemoveWhere(req =>
             {
-                var result = ch.UpdateAsyncLoad();
-                if (!result)
-                {
-                    remainingCharacters.Add(ch);
-                }
-            }
-            _characters = remainingCharacters;
+                return req.UpdateAsyncLoad();
+            });
         }
     }
 }

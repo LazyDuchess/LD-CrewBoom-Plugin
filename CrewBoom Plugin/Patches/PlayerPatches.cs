@@ -1,6 +1,8 @@
 ﻿using BepInEx.Logging;
+using CrewBoom.Behaviours;
 using CrewBoom.Compatibility;
 using CrewBoom.Data;
+using CrewBoom.Database;
 using CrewBoomAPI;
 using HarmonyLib;
 using Reptile;
@@ -12,7 +14,7 @@ namespace CrewBoom.Patches
     [HarmonyPatch(typeof(Player), nameof(Player.SetCharacter))]
     public class PlayerInitOverridePatch
     {
-        public static void Prefix(ref Characters setChar)
+        public static void Prefix(Player __instance, ref Characters setChar, int setOutfit)
         {
             if (CharacterDatabase.HasCharacterOverride)
             {
@@ -24,6 +26,22 @@ namespace CrewBoom.Patches
                     }
                 }
             }
+
+            var preload = false;
+            if (CharacterDatabase.GetCharacter(setChar, out var customChar))
+            {
+                if (customChar.Loaded)
+                {
+                    preload = true;
+                }
+                else if (!CrewBoomSettings.LoadCharactersAsync)
+                {
+                    customChar.WaitForLoadSync();
+                    preload = true;
+                }
+            }
+            var streamingComp = PlayerStreamingComponent.GetOrCreate(__instance);
+            streamingComp.SetCharacter(setChar, setOutfit, preload);
         }
 
         public static void Postfix(Player __instance, Characters setChar)
@@ -53,6 +71,9 @@ namespace CrewBoom.Patches
     {
         public static bool Prefix(int setOutfit, Player __instance, CharacterVisual ___characterVisual, Characters ___character)
         {
+            var streamingComp = PlayerStreamingComponent.GetOrCreate(__instance);
+            streamingComp.SetOutfit(setOutfit);
+
             if (!CharacterDatabase.HasCharacter(___character))
             {
                 return true;
