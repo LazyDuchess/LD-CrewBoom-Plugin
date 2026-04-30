@@ -127,6 +127,15 @@ namespace CrewBoom.Data
         public void WaitForLoadSync()
         {
             if (Loaded) return;
+            if (BundleRequest != null)
+            {
+                // HACKIEST OF HACKS EVER HACKED
+                while (BundleRequest.progress < 0.9f)
+                {
+                }
+                BundleRequest.assetBundle.Unload(true);
+                BundleRequest = null;
+            }
             LoadSync();
         }
 

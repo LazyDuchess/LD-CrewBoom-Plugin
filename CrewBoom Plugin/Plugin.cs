@@ -1,5 +1,6 @@
 ﻿using BepInEx;
 using BepInEx.Bootstrap;
+using CrewBoom.Behaviours;
 using CrewBoom.Compatibility;
 using CrewBoom.Database;
 using HarmonyLib;
@@ -57,6 +58,14 @@ namespace CrewBoom
         private void StageManager_OnStagePostInitialization()
         {
             CharacterDatabase.RefreshShaders();
+
+            // Wait for our character to finish loading so we avoid pop in.
+            var ply = WorldHandler.instance.GetCurrentPlayer();
+            if (ply != null)
+            {
+                var stream = PlayerStreamingComponent.GetOrCreate(ply);
+                stream.WaitForLoadSync();
+            }
         }
     }
 }
