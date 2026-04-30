@@ -202,10 +202,13 @@ namespace CrewBoom
                 _cypherMapping.Add(guid, enableCypher);
             }
 
-            var forceLoad = characterToReplace != BrcCharacter.None;
+            var replacement = characterToReplace != BrcCharacter.None;
+            var forceLoad = false;
+
             if (!CrewBoomSettings.StreamCharacters)
                 forceLoad = true;
-            var customCharacter = new CustomCharacter(streamData, sfxID, filePath, forceLoad);
+
+            var customCharacter = new CustomCharacter(streamData, sfxID, filePath, replacement, forceLoad);
             _customCharacters.Add(guid, customCharacter);
             return true;
         }
@@ -231,7 +234,7 @@ namespace CrewBoom
 
             foreach (CustomCharacter character in _customCharacters.Values)
             {
-                //character.ApplyShaderToGraffiti(shader); - TODO
+                character.ApplyShaderToGraffiti(shader);
             }
         }
 
@@ -275,7 +278,7 @@ namespace CrewBoom
                     {
                         if (GetCharacter(guid, out CustomCharacter customCharacter))
                         {
-                            //customCharacter.ApplySfxCollection(collection); - TODO
+                            customCharacter.ApplySfxCollection(collection);
                         }
                     }
                 }

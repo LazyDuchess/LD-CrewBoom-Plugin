@@ -38,14 +38,64 @@ namespace CrewBoom.Data
 
         public Action<CustomCharacter> OnLoadedCallback;
 
-        public CustomCharacter(CharacterStreamData streamData, SfxCollectionID sfxID, string path, bool replacement)
+        public GraffitiArt Graffiti { get; private set; }
+        public Texture2D DefaultGraffitiTexture
+        {
+            get
+            {
+                if (_defaultGraffitiTexture == null)
+                {
+                    _defaultGraffitiTexture = TextureUtil.GetTextureFromBitmap(Properties.Resources.default_graffiti);
+                }
+                return _defaultGraffitiTexture;
+            }
+        }
+
+        private static Texture2D _defaultGraffitiTexture = null;
+
+        public CustomCharacter(CharacterStreamData streamData, SfxCollectionID sfxID, string path, bool replacement, bool forceLoad)
         {
             StreamData = streamData;
             SfxID = sfxID;
             _path = path;
-            KeepLoaded = replacement;
+            KeepLoaded = replacement || forceLoad;
+
             if (KeepLoaded)
                 LoadSync();
+
+            if (!replacement)
+                CreateGraffiti();
+        }
+
+        private void CreateGraffiti()
+        {
+            var graffitiMaterial = new Material(Shader.Find("Standard"));
+            graffitiMaterial.mainTexture = StreamData.GraffitiTexture;
+            var graffitiName = StreamData.GrafTitle;
+            var graffitiArtist = StreamData.GrafAuthor;
+
+            if (!StreamData.HasGraffiti)
+            {
+                graffitiMaterial.mainTexture = DefaultGraffitiTexture;
+                graffitiName = "Crew BOOM";
+                graffitiArtist = "Capry";
+            }
+
+            var graffiti = new GraffitiArt();
+            graffiti.graffitiSize = GraffitiSize.S;
+            graffiti.graffitiMaterial = graffitiMaterial;
+            graffiti.title = graffitiName;
+            graffiti.artistName = graffitiArtist;
+
+            var appEntry = ScriptableObject.CreateInstance<GraffitiAppEntry>();
+            appEntry.Size = GraffitiSize.S;
+            appEntry.GraffitiTexture = graffitiMaterial.mainTexture;
+            appEntry.Title = StreamData.GrafTitle;
+            appEntry.Artist = StreamData.GrafAuthor;
+
+            graffiti.unlockable = appEntry;
+
+            Graffiti = graffiti;
         }
 
         public void AddReference()
@@ -186,8 +236,16 @@ namespace CrewBoom.Data
         private void DestroySfxCollection()
         {
             if (Sfx != null)
-                ScriptableObject.DestroyImmediate(Sfx, true);
-            Sfx = null;
+            {
+                Sfx.audioClipContainers = new SfxCollection.RandomAudioClipContainer[VOICE_IDS.Count];
+                for (int i = 0; i < VOICE_IDS.Count; i++)
+                {
+                    Sfx.audioClipContainers[i] = new SfxCollection.RandomAudioClipContainer();
+                    Sfx.audioClipContainers[i].clipID = VOICE_IDS[i];
+                    Sfx.audioClipContainers[i].clips = null;
+                    Sfx.audioClipContainers[i].lastRandomClip = 0;
+                }
+            }
         }
 
         private void CreateSfxCollection()
@@ -197,7 +255,12 @@ namespace CrewBoom.Data
                 return;
             }
 
-            SfxCollection newCollection = ScriptableObject.CreateInstance<SfxCollection>();
+            var newCollection = Sfx;
+
+            if (newCollection == null)
+            {
+                newCollection = ScriptableObject.CreateInstance<SfxCollection>();
+            }
 
             newCollection.audioClipContainers = new SfxCollection.RandomAudioClipContainer[VOICE_IDS.Count];
             for (int i = 0; i < VOICE_IDS.Count; i++)
@@ -258,6 +321,37 @@ namespace CrewBoom.Data
             }
 
             Sfx = newCollection;
+        }
+
+        public void ApplySfxCollection(SfxCollection collection)
+        {
+            if (Sfx == null)
+            {
+                Sfx = collection;
+                return;
+            }
+            else
+            {
+                foreach (SfxCollection.RandomAudioClipContainer container in collection.audioClipContainers)
+                {
+                    //Add any missing entries
+                    if (!VOICE_IDS.Contains(container.clipID))
+                    {
+                        Array.Resize(ref Sfx.audioClipContainers, Sfx.audioClipContainers.Length + 1);
+                        Sfx.audioClipContainers[Sfx.audioClipContainers.Length - 1] = container;
+                    }
+                }
+            }
+        }
+
+        public void ApplyShaderToGraffiti(Shader shader)
+        {
+            if (Graffiti == null)
+            {
+                return;
+            }
+
+            Graffiti.graffitiMaterial.shader = shader;
         }
 
         /*
@@ -463,15 +557,7 @@ namespace CrewBoom.Data
                 }
             }
         }
-        public void ApplyShaderToGraffiti(Shader shader)
-        {
-            if (Graffiti == null)
-            {
-                return;
-            }
-
-            Graffiti.graffitiMaterial.shader = shader;
-        }
+        
      */
     }
 }

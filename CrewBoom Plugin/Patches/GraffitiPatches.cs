@@ -31,8 +31,8 @@ namespace CrewBoom.Patches
                     {
                         GraffitiArt graffiti = info.FindByCharacter(character);
 
-                        //Texture mainTex = customCharacter.Definition.Graffiti.mainTexture;
-                        //graffiti.graffitiMaterial.mainTexture = mainTex; - TODO
+                        var mainTex = customCharacter.StreamData.GraffitiTexture;
+                        graffiti.graffitiMaterial.mainTexture = mainTex;
                     }
                 }
             }
@@ -49,12 +49,11 @@ namespace CrewBoom.Patches
         {
             if (character > Characters.MAX)
             {
-                /*
                 if (CharacterDatabase.GetCharacter(character, out CustomCharacter customCharacter))
                 {
                     __result = customCharacter.Graffiti;
                     return false;
-                } -- TODO */
+                }
                 character = Characters.metalHead;
             }
 
@@ -68,12 +67,10 @@ namespace CrewBoom.Patches
         {
             if (__result != null || !string.IsNullOrEmpty(grafTitle))
             {
-                /*
                 if (CharacterDatabase.GetCharacterWithGraffitiTitle(grafTitle, out CustomCharacter customCharacter))
                 {
                     __result = customCharacter.Graffiti;
-                } -- TODO
-                */
+                }
             }
         }
     }
