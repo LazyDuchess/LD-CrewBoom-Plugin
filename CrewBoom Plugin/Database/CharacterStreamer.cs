@@ -12,7 +12,7 @@ namespace CrewBoom.Database
 {
     public static class CharacterStreamer
     {
-        private static HashSet<AssetBundleCreateRequest> _cancelledRequests = new();
+        private static HashSet<CustomCharacter> _cancelledRequests = new();
         private static HashSet<CustomCharacter> _characters = new();
         private static Dictionary<CustomCharacter, float> _keepAlives = new();
         public static GameObject StreamingVisuals
@@ -38,6 +38,7 @@ namespace CrewBoom.Database
 
         public static void AddToStreamQueue(CustomCharacter character)
         {
+            _cancelledRequests.Remove(character);
             _characters.Add(character);
         }
 
@@ -47,10 +48,11 @@ namespace CrewBoom.Database
             if (character.BundleRequest.isDone)
             {
                 character.BundleRequest.assetBundle.Unload(true);
+                character.BundleRequest = null;
             }
             else
             {
-                _cancelledRequests.Add(character.BundleRequest);
+                _cancelledRequests.Add(character);
             }
         }
 
@@ -58,9 +60,10 @@ namespace CrewBoom.Database
         {
             _cancelledRequests.RemoveWhere(req =>
             {
-                if (req.isDone)
+                if (req.BundleRequest.isDone)
                 {
-                    req.assetBundle.Unload(true);
+                    req.BundleRequest.assetBundle.Unload(true);
+                    req.BundleRequest = null;
                     return true;
                 }
                 return false;

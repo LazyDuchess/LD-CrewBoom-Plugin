@@ -33,7 +33,7 @@ namespace CrewBoom.Data
         public bool KeepLoaded { get; private set; }
         private string _path;
         private AssetBundle _bundle;
-        public AssetBundleCreateRequest BundleRequest { get; private set; }
+        public AssetBundleCreateRequest BundleRequest;
 
         public int References = 0;
 
@@ -144,15 +144,14 @@ namespace CrewBoom.Data
             if (Loaded) return;
             if (BundleRequest == null) return;
             CharacterStreamer.CancelBundleLoadRequest(this);
-            BundleRequest = null;
             _bundle = null;
         }
 
         private void LoadAsync()
         {
             if (Loaded) return;
-            if (BundleRequest != null) return;
-            BundleRequest = AssetBundle.LoadFromFileAsync(_path);
+            if (BundleRequest == null)
+                BundleRequest = AssetBundle.LoadFromFileAsync(_path);
             CharacterStreamer.AddToStreamQueue(this);
         }
 
