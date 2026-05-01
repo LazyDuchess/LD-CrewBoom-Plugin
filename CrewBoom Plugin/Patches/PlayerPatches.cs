@@ -157,24 +157,42 @@ namespace CrewBoom.Patches
         }
     }
 
-    [HarmonyPatch(typeof(Player), nameof(Player.PlayAnim))]
-    public class PlayerPlayAnimPatch
+    public struct UpdateAnimState
     {
-        public static bool Prefix(Player __instance, int newAnim)
+        public int originalAnim;
+        public int newAnim;
+        public bool doingBoEDance;
+    }
+
+    [HarmonyPatch(typeof(Player), nameof(Player.UpdateAnim))]
+    public class PlayerUpdateAnimPatch
+    {
+        public static void Prefix(Player __instance, ref UpdateAnimState __state)
         {
-            var doingboedance = false;
+            __state.originalAnim = __instance.curAnim;
+            __state.doingBoEDance = false;
 
             if (CharacterDatabase.GetCharacter(__instance.character, out var customChar))
             {
                 if (customChar.StreamData.BoEIdleDanceVanilla && __instance.curAnim == __instance.characterVisual.bounceAnimHash)
-                    doingboedance = true;
+                    __state.doingBoEDance = true;
                 else if (!customChar.StreamData.BoEIdleDanceVanilla && BunchOfEmotesSupport.Installed && BunchOfEmotesSupport.IsCustomAnimation(__instance.curAnim) && __instance.curAnim == __instance.characterVisual.bounceAnimHash)
-                    doingboedance = true;
+                    __state.doingBoEDance = true;
             }
 
-            if (doingboedance && (newAnim == __instance.idleHash || newAnim == __instance.idleFidget1Hash || newAnim == __instance.stopRunHash))
-                return false;
-            return true;
+            if (__state.doingBoEDance)
+            {
+                __state.newAnim = __instance.softBounce1Hash;
+                __instance.curAnim = __state.newAnim;
+            }
+        }
+
+        public static void Postfix(Player __instance, UpdateAnimState __state)
+        {
+            if (__state.doingBoEDance && __state.newAnim == __instance.curAnim)
+            {
+                __instance.curAnim = __state.originalAnim;
+            }
         }
     }
 
