@@ -63,7 +63,7 @@ namespace CrewBoom.Data
             KeepLoaded = replacement || forceLoad;
 
             if (KeepLoaded)
-                LoadSync();
+                LoadSyncFromStartup();
 
             if (!replacement)
                 CreateGraffiti();
@@ -156,6 +156,11 @@ namespace CrewBoom.Data
             CharacterStreamer.AddToStreamQueue(this);
         }
 
+        private void LoadSyncFromStartup()
+        {
+            OnBundleLoaded(AssetBundle.LoadFromFile(_path), false);
+        }
+
         private void LoadSync()
         {
             if (Loaded) return;
@@ -175,7 +180,7 @@ namespace CrewBoom.Data
             return false;
         }
 
-        private void OnBundleLoaded(AssetBundle bundle)
+        private void OnBundleLoaded(AssetBundle bundle, bool fixShaders = true)
         {
             _bundle = bundle;
             Loaded = true;
@@ -187,7 +192,8 @@ namespace CrewBoom.Data
                 if (Definition != null)
                     break;
             }
-            FixCharacterShader();
+            if (fixShaders)
+                FixCharacterShader();
             CreateVisual();
             LoadSfxCollection();
             OnLoadedCallback?.Invoke(this);

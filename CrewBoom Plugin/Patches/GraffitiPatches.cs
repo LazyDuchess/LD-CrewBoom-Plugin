@@ -86,9 +86,12 @@ namespace CrewBoom.Patches
             {
                 if (CharacterDatabase.GetCharacter(___player.character, out CustomCharacter customCharacter))
                 {
-                    if (___grafArt == ___graffitiArtInfo.FindByCharacter(___player.character))
+                    if (customCharacter.Graffiti != null)
                     {
-                        ___player.ui.graffitiTitle.text = $"'{customCharacter.Graffiti.title}'";
+                        if (___grafArt == ___graffitiArtInfo.FindByCharacter(___player.character))
+                        {
+                            ___player.ui.graffitiTitle.text = $"'{customCharacter.Graffiti.title}'";
+                        }
                     }
                 }
             }
