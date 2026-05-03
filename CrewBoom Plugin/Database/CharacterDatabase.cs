@@ -80,27 +80,43 @@ namespace CrewBoom
 
         private static bool LoadAllCharacterData()
         {
+            var updatedCharacters = 0;
             bool foundAtLeastOneCharacter = false;
 
             foreach (var filePath in Directory.GetFiles(ASSET_PATH, "*.cbb"))
             {
-                if (LoadCharacterBundle(filePath, true))
+                if (LoadCharacterBundle(filePath, true, out var updated))
                 {
                     foundAtLeastOneCharacter = true;
+                    if (updated) updatedCharacters++;
                 }
             }
             foreach (var filePath in Directory.GetFiles(NO_CYPHER_PATH, "*.cbb"))
             {
-                if (LoadCharacterBundle(filePath, false))
+                if (LoadCharacterBundle(filePath, false, out var updated))
                 {
                     foundAtLeastOneCharacter = true;
+                    if (updated) updatedCharacters++;
                 }
             }
             foreach(var filePath in Directory.GetFiles(Paths.PluginPath, "*.cbb", SearchOption.AllDirectories))
             {
-                if (LoadCharacterBundle(filePath, true))
+                if (LoadCharacterBundle(filePath, true, out var updated))
                 {
                     foundAtLeastOneCharacter = true;
+                    if (updated) updatedCharacters++;
+                }
+            }
+
+            if (updatedCharacters > 0)
+            {
+                if (CrewBoomSettings.UpdateCBBs)
+                {
+                    DebugLog.LogInfo($"Updated {updatedCharacters} .cbb files with stream data!");
+                }
+                else
+                {
+                    DebugLog.LogInfo($"Created stream files (.ldcs) for {updatedCharacters} .cbb files!");
                 }
             }
 
@@ -108,6 +124,11 @@ namespace CrewBoom
         }
 
         private static bool LoadCharacterBundle(string filePath, bool enableCypher)
+        {
+            return LoadCharacterBundle(filePath, enableCypher, out var _);
+        }
+
+        private static bool LoadCharacterBundle(string filePath, bool enableCypher, out bool generatedStream)
         {
             var fileName = Path.GetFileName(filePath);
             var configPath = Path.Combine(Path.GetDirectoryName(filePath), Path.GetFileNameWithoutExtension(filePath) + ".json");
@@ -138,25 +159,30 @@ namespace CrewBoom
             CharacterDefinition characterDef = null;
             CharacterStreamData streamData = null;
 
-            if (File.Exists(streamPath))
+            try
             {
-                streamData = new CharacterStreamData();
-                using (var fs = new FileStream(streamPath, FileMode.Open, FileAccess.Read))
+                using(var embedded = new EmbeddedBundle(filePath))
                 {
-                    using (var br = new BinaryReader(fs))
+                    embedded.OpenRead();
+                    if (!embedded.TryRetrieveStreamData(out streamData))
                     {
-                        streamData.Read(br);
-                    }
-                }
-            }
-            else
-            {
-                try
-                {
-                    using(var embedded = new EmbeddedBundle(filePath))
-                    {
-                        embedded.OpenRead();
-                        if (!embedded.TryRetrieveStreamData(out streamData))
+                        if (File.Exists(streamPath))
+                        {
+                            streamData = new CharacterStreamData();
+                            using (var fs = new FileStream(streamPath, FileMode.Open, FileAccess.Read))
+                            {
+                                using (var br = new BinaryReader(fs))
+                                {
+                                    streamData.Read(br, CrewBoomSettings.UpdateCBBs);
+                                }
+                            }
+                            if (CrewBoomSettings.UpdateCBBs)
+                            {
+                                embedded.OpenWrite();
+                                embedded.AppendStreamData(streamData);
+                            }
+                        }
+                        else
                         {
                             var bundle = embedded.LoadAssetBundle();
                             var objects = bundle.LoadAllAssets<GameObject>();
@@ -189,16 +215,16 @@ namespace CrewBoom
                         }
                     }
                 }
-                catch (Exception e)
+            }
+            catch (Exception e)
+            {
+                DebugLog.LogError($"Failed to load bundle for \"{fileName}\"");
+                DebugLog.LogError($"{e}");
+                if (streamData != null)
                 {
-                    DebugLog.LogError($"Failed to load bundle for \"{fileName}\"");
-                    DebugLog.LogError($"{e}");
-                    if (streamData != null)
-                    {
-                        streamData.Release();
-                    }
-                    return false;
+                    streamData.Release();
                 }
+                return false;
             }
 
             if (streamData == null) return false;
