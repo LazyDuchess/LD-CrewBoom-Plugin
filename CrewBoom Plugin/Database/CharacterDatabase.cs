@@ -12,6 +12,7 @@ using CrewBoomAPI;
 using System.Linq;
 using UnityEngine.TextCore.Text;
 using CrewBoom.Database;
+using CrewBoom.Mono;
 
 namespace CrewBoom
 {
@@ -152,26 +153,41 @@ namespace CrewBoom
             {
                 try
                 {
-                    var bundle = AssetBundle.LoadFromFile(filePath);
-                    var objects = bundle.LoadAllAssets<GameObject>();
-                    foreach (var obj in objects)
+                    using(var embedded = new EmbeddedBundle(filePath))
                     {
-                        characterDef = obj.GetComponent<CharacterDefinition>();
-                        if (characterDef != null)
+                        embedded.OpenRead();
+                        if (!embedded.TryRetrieveStreamData(out streamData))
                         {
-                            streamData = new CharacterStreamData();
-                            streamData.FromCharacter(characterDef);
-                            using (var fs = new FileStream(streamPath, FileMode.Create, FileAccess.Write))
+                            var bundle = embedded.LoadAssetBundle();
+                            var objects = bundle.LoadAllAssets<GameObject>();
+                            foreach (var obj in objects)
                             {
-                                using (var bw = new BinaryWriter(fs))
+                                characterDef = obj.GetComponent<CharacterDefinition>();
+                                if (characterDef != null)
                                 {
-                                    streamData.Write(bw);
+                                    streamData = new CharacterStreamData();
+                                    streamData.FromCharacter(characterDef);
+                                    if (CrewBoomSettings.UpdateCBBs)
+                                    {
+                                        embedded.OpenWrite();
+                                        embedded.AppendStreamData(streamData);
+                                    }
+                                    else
+                                    {
+                                        using (var fs = new FileStream(streamPath, FileMode.Create, FileAccess.Write))
+                                        {
+                                            using (var bw = new BinaryWriter(fs))
+                                            {
+                                                streamData.Write(bw);
+                                            }
+                                        }
+                                    }
+                                    break;
                                 }
                             }
-                        break;
+                            bundle.Unload(true);
                         }
                     }
-                    bundle.Unload(true);
                 }
                 catch (Exception e)
                 {
