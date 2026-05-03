@@ -9,6 +9,18 @@ namespace CrewBoom.Database
 {
     public static class CrewBoomSettings
     {
+        public static bool UpdateCBBs
+        {
+            get
+            {
+                return _updateCbbs.Value;
+            }
+
+            set
+            {
+                _updateCbbs.Value = value;
+            }
+        }
         public static bool StreamCharacters
         {
             get
@@ -65,6 +77,7 @@ namespace CrewBoom.Database
         private static ConfigEntry<bool> _loadCharactersAsync;
         private static ConfigEntry<bool> _unloadCharacters;
         private static ConfigEntry<float> _keepAliveTime;
+        private static ConfigEntry<bool> _updateCbbs;
 
         public static void Initialize(ConfigFile configFile)
         {
@@ -72,6 +85,7 @@ namespace CrewBoom.Database
             _unloadCharacters = configFile.Bind("General", "Unload Characters", true, "If true, and Stream Characters is also true, characters will be dynamically unloaded during gameplay as they're no longer used. If false, characters will never unload, lowering pop-in as characters load for the first time but increasing memory usage.");
             _loadCharactersAsync = configFile.Bind("General", "Stream Characters Async", true, "If true, and Stream Characters is also true, custom characters will be loaded in the background in order to keep gameplay smooth. This means there might be some pop-in as character models won't always be readily available in memory.");
             _keepAliveTime = configFile.Bind("General", "Keep Alive Time", 0.5f, "How long to keep characters lingering in memory after they've gone unused. Should reduce stutters and such as it keeps recent characters in memory, especially between transitions. Set to 0 to disable.");
+            _updateCbbs = configFile.Bind("General", "Update CBBs", true, "If true, will update and overwrite your old .cbb files to embed .ldcs data into them. This makes them load way faster and streamable, while still keeping them compatible with original CrewBoom. If false, instead generates .ldcs data separate from the .cbb, for the same purpose.");
         }
     }
 }
