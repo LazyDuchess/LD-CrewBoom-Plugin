@@ -149,6 +149,7 @@ namespace CrewBoom
                 DebugLog.LogError($"{e}");
                 return false;
             }
+            File.Delete(bakFilePath);
             return true;
         }
 
