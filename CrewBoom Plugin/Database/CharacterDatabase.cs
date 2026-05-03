@@ -128,8 +128,33 @@ namespace CrewBoom
             return LoadCharacterBundle(filePath, enableCypher, out var _);
         }
 
+        private static bool SafelyAppendEmbedded(string filePath, EmbeddedBundle embedded, CharacterStreamData streamData)
+        {
+            var bakFilePath = filePath + ".bak";
+
+            if (File.Exists(bakFilePath))
+                File.Delete(bakFilePath);
+
+            File.Copy(filePath, bakFilePath);
+            try
+            {
+                embedded.OpenWrite();
+                embedded.AppendStreamData(streamData);
+            }
+            catch(Exception e)
+            {
+                embedded.Close();
+                File.Replace(bakFilePath, filePath, null);
+                DebugLog.LogError($"Failed to update CBB for \"{filePath}\"");
+                DebugLog.LogError($"{e}");
+                return false;
+            }
+            return true;
+        }
+
         private static bool LoadCharacterBundle(string filePath, bool enableCypher, out bool generatedStream)
         {
+            generatedStream = false;
             var fileName = Path.GetFileName(filePath);
             var configPath = Path.Combine(Path.GetDirectoryName(filePath), Path.GetFileNameWithoutExtension(filePath) + ".json");
             var streamPath = Path.Combine(Path.GetDirectoryName(filePath), Path.GetFileNameWithoutExtension(filePath) + ".ldcs");
@@ -178,8 +203,7 @@ namespace CrewBoom
                             }
                             if (CrewBoomSettings.UpdateCBBs)
                             {
-                                embedded.OpenWrite();
-                                embedded.AppendStreamData(streamData);
+                                generatedStream = SafelyAppendEmbedded(filePath, embedded, streamData);
                             }
                         }
                         else
@@ -195,8 +219,7 @@ namespace CrewBoom
                                     streamData.FromCharacter(characterDef);
                                     if (CrewBoomSettings.UpdateCBBs)
                                     {
-                                        embedded.OpenWrite();
-                                        embedded.AppendStreamData(streamData);
+                                        generatedStream = SafelyAppendEmbedded(filePath, embedded, streamData);
                                     }
                                     else
                                     {
@@ -207,6 +230,7 @@ namespace CrewBoom
                                                 streamData.Write(bw);
                                             }
                                         }
+                                        generatedStream = true;
                                     }
                                     break;
                                 }
